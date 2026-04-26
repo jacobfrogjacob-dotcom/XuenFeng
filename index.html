@@ -373,16 +373,20 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 currentUser = session.user;
-                const { data, error } = await supabaseClient.from('users').select('*').eq('id', session.user.id).single();
-                if (data) {
-                    currentUserData = data;
-                    updateCoinDisplay(data);
-                    document.getElementById('guestMenu').style.display = 'none';
-                    document.getElementById('userMenu').style.display = 'flex';
-                    document.getElementById('userAvatar').textContent = (data.username || 'U').charAt(0).toUpperCase();
-                } else if (error && error.code === 'PGRST116') {
-                    await supabaseClient.from('users').insert({ id: session.user.id, email: session.user.email, username: session.user.email.split('@')[0] });
-                    checkAuth();
+                try {
+                    const { data, error } = await supabaseClient.from('users').select('id, username, email, xuanfeng_coin, dianfeng_coin').eq('id', session.user.id).single();
+                    if (data) {
+                        currentUserData = data;
+                        updateCoinDisplay(data);
+                        document.getElementById('guestMenu').style.display = 'none';
+                        document.getElementById('userMenu').style.display = 'flex';
+                        document.getElementById('userAvatar').textContent = (data.username || 'U').charAt(0).toUpperCase();
+                    } else if (error && error.code === 'PGRST116') {
+                        await supabaseClient.from('users').upsert({ id: session.user.id, email: session.user.email, username: session.user.email.split('@')[0], xuanfeng_coin: 0, dianfeng_coin: 0 }, { onConflict: 'id' });
+                        checkAuth();
+                    }
+                } catch(e) {
+                    console.log('user error:', e);
                 }
             }
         }
