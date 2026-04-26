@@ -374,7 +374,8 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 currentUser = session.user;
-                const { data } = await supabaseClient.from('users').select('*').eq('id', session.user.id).single();
+                const { data, error } = await supabaseClient.from('users').select('id, username, email, balance, avatar_url').eq('id', session.user.id).single();
+                console.log('users query:', error || 'ok');
                 if (data) {
                     currentUserData = data;
                     document.getElementById('guestMenu').style.display = 'none';
@@ -382,6 +383,9 @@
                     document.getElementById('userBalance').textContent = data.balance || 0;
                     const initial = data.username ? data.username.charAt(0).toUpperCase() : 'U';
                     document.getElementById('userAvatar').textContent = initial;
+                } else if (error && error.code === 'PGRST116') {
+                    await supabaseClient.from('users').insert({ id: session.user.id, email: session.user.email, username: session.user.email.split('@')[0] });
+                    checkAuth();
                 }
             }
         }
@@ -469,7 +473,7 @@
 
         async function confirmBuy() {
             const price = selectedProduct.price;
-            const { data: user } = await supabaseClient.from('users').select('*').eq('id', currentUser.id).single();
+            const { data: user } = await supabaseClient.from('users').select('id, balance').eq('id', currentUser.id).single();
             
             if (!user || user.balance < price) {
                 alert('餘額不足，請聯繫管理員充值！');
