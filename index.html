@@ -374,19 +374,21 @@
             if (session) {
                 currentUser = session.user;
                 try {
-                    const { data, error } = await supabaseClient.from('users').select('id, username, email, xuanfeng_coin, dianfeng_coin').eq('id', session.user.id).single();
+                    const { data, error } = await supabaseClient.from('users').select('id, username, email, xuanfeng_coin, dianfeng_coin').eq('id', session.user.id).maybeSingle();
                     if (data) {
                         currentUserData = data;
                         updateCoinDisplay(data);
                         document.getElementById('guestMenu').style.display = 'none';
                         document.getElementById('userMenu').style.display = 'flex';
                         document.getElementById('userAvatar').textContent = (data.username || 'U').charAt(0).toUpperCase();
-                    } else if (error && error.code === 'PGRST116') {
-                        await supabaseClient.from('users').upsert({ id: session.user.id, email: session.user.email, username: session.user.email.split('@')[0], xuanfeng_coin: 0, dianfeng_coin: 0 }, { onConflict: 'id' });
-                        checkAuth();
+                    } else {
+                        document.getElementById('guestMenu').style.display = 'none';
+                        document.getElementById('userMenu').style.display = 'flex';
+                        document.getElementById('userAvatar').textContent = 'U';
                     }
                 } catch(e) {
-                    console.log('user error:', e);
+                    document.getElementById('guestMenu').style.display = 'none';
+                    document.getElementById('userMenu').style.display = 'flex';
                 }
             }
         }
