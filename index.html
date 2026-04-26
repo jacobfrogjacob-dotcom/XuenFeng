@@ -7,124 +7,129 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: #1a1a2e; color: #fff; }
-        .header { background: #16213e; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 24px; font-weight: bold; color: #e94560; }
+        body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f0f4f8; color: #333; }
+        .header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 22px; font-weight: bold; color: #0b90d8; }
         .user-info { display: flex; align-items: center; gap: 15px; }
-        .balance { background: #e94560; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
-        .btn { background: #0f3460; border: none; color: #fff; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
-        .btn:hover { background: #e94560; }
-        .banner { width: 100%; height: 200px; background: linear-gradient(45deg, #16213e, #0f3460); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .banner h1 { font-size: 36px; margin-bottom: 10px; }
-        .banner p { color: #aaa; }
+        .balance { background: #0b90d8; color: #fff; padding: 5px 15px; border-radius: 4px; font-weight: bold; }
+        .btn { background: #e6eef5; border: none; color: #333; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn:hover { background: #0b90d8; color: #fff; }
+        .btn-primary { background: #0b90d8; color: #fff; }
+        .btn-primary:hover { background: #0980c0; }
+        .banner { background: linear-gradient(135deg, #0b90d8, #065e8a); padding: 60px 30px; text-align: center; color: #fff; }
+        .banner h1 { font-size: 32px; margin-bottom: 10px; }
+        .banner p { opacity: 0.9; }
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         .categories { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-        .cat-btn { background: #16213e; border: 1px solid #0f3460; padding: 10px 20px; border-radius: 5px; cursor: pointer; color: #fff; transition: all 0.3s; }
-        .cat-btn:hover, .cat-btn.active { background: #e94560; border-color: #e94560; }
-        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .product-card { background: #16213e; border-radius: 10px; overflow: hidden; transition: transform 0.3s; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-img { width: 100%; height: 200px; object-fit: cover; background: #0f3460; display: flex; align-items: center; justify-content: center; color: #666; }
+        .cat-btn { background: #fff; border: 1px solid #ddd; padding: 10px 20px; border-radius: 4px; cursor: pointer; color: #666; transition: all 0.2s; }
+        .cat-btn:hover, .cat-btn.active { background: #0b90d8; color: #fff; border-color: #0b90d8; }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .product-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.12); }
+        .product-img { width: 100%; height: 180px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; }
+        .product-img img { width: 100%; height: 100%; object-fit: cover; }
         .product-info { padding: 15px; }
-        .product-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-        .product-desc { color: #aaa; font-size: 14px; margin-bottom: 15px; height: 40px; overflow: hidden; }
+        .product-name { font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #333; }
+        .product-desc { color: #888; font-size: 13px; margin-bottom: 12px; }
         .product-footer { display: flex; justify-content: space-between; align-items: center; }
-        .price { color: #e94560; font-size: 20px; font-weight: bold; }
-        .buy-btn { background: #e94560; border: none; color: #fff; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
-        .buy-btn:hover { background: #ff6b6b; }
-        .buy-btn:disabled { background: #666; cursor: not-allowed; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .price { color: #e74c3c; font-size: 18px; font-weight: bold; }
+        .buy-btn { background: #0b90d8; border: none; color: #fff; padding: 8px 18px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .buy-btn:hover { background: #0980c0; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.show { display: flex; }
-        .modal-content { background: #16213e; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; }
-        .modal h2 { margin-bottom: 20px; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 8px; max-width: 420px; width: 90%; }
+        .modal h2 { margin-bottom: 20px; color: #333; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #0f3460; border: 1px solid #333; border-radius: 5px; color: #fff; }
-        .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .orders-list { margin-top: 30px; }
-        .order-item { background: #16213e; padding: 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .order-status { padding: 3px 10px; border-radius: 3px; font-size: 12px; }
-        .order-status.pending { background: #f39c12; }
-        .order-status.completed { background: #27ae60; }
-        .empty { text-align: center; padding: 50px; color: #666; }
+        .form-group label { display: block; margin-bottom: 6px; color: #666; font-size: 14px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; color: #333; font-size: 14px; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #0b90d8; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .orders-list { margin-top: 15px; }
+        .order-item { background: #f9f9f9; padding: 12px 15px; border-radius: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .order-status { padding: 3px 8px; border-radius: 3px; font-size: 12px; }
+        .order-status.pending { background: #f39c12; color: #fff; }
+        .order-status.completed { background: #27ae60; color: #fff; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+        .notice { background: #fff3cd; padding: 12px; border-radius: 4px; margin-bottom: 20px; color: #856404; font-size: 14px; }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="logo" id="siteName">玄封商店</div>
         <div class="user-info">
-            <span class="balance">玄封幣: <span id="userBalance">0</span></span>
+            <span class="balance">餘額: <span id="userBalance">0</span></span>
             <button class="btn" id="loginBtn" onclick="showLogin()">登入</button>
             <button class="btn" id="registerBtn" onclick="showRegister()">註冊</button>
             <button class="btn" id="logoutBtn" onclick="logout()" style="display:none">登出</button>
-            <button class="btn" id="ordersBtn" onclick="showOrders()">購買記錄</button>
+            <button class="btn" id="ordersBtn" onclick="showOrders()">訂單</button>
         </div>
     </header>
 
     <div class="banner">
         <h1 id="bannerTitle">玄封商店</h1>
-        <p id="bannerDesc">代币商城</p>
+        <p id="bannerDesc">安全快捷的代幣商城</p>
     </div>
 
     <div class="container">
+        <div class="notice">歡迎來到玄封商店！請先登入或註冊帳號。</div>
         <div class="categories" id="categories"></div>
         <div class="products" id="products"></div>
     </div>
 
     <div class="modal" id="loginModal">
         <div class="modal-content">
-            <h2>登入</h2>
+            <h2>用戶登入</h2>
             <div class="form-group">
-                <label>信箱</label>
-                <input type="email" id="loginEmail">
+                <label>帳號 / Email</label>
+                <input type="text" id="loginEmail" placeholder="請輸入帳號或信箱">
             </div>
             <div class="form-group">
-                <label>密碼</label>
-                <input type="password" id="loginPassword">
+                <label>登入密碼</label>
+                <input type="password" id="loginPassword" placeholder="請輸入密碼">
             </div>
             <div class="form-actions">
                 <button class="btn" onclick="closeModal('loginModal')">取消</button>
-                <button class="btn" style="background:#e94560" onclick="login()">登入</button>
+                <button class="btn btn-primary" onclick="login()">立即登入</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="registerModal">
         <div class="modal-content">
-            <h2>註冊</h2>
+            <h2>用戶註冊</h2>
             <div class="form-group">
-                <label>信箱</label>
-                <input type="email" id="registerEmail">
+                <label>Email</label>
+                <input type="email" id="registerEmail" placeholder="請輸入信箱">
             </div>
             <div class="form-group">
                 <label>用戶名</label>
-                <input type="text" id="registerUsername">
+                <input type="text" id="registerUsername" placeholder="請輸入用戶名">
             </div>
             <div class="form-group">
-                <label>密碼</label>
-                <input type="password" id="registerPassword">
+                <label>登入密碼</label>
+                <input type="password" id="registerPassword" placeholder="請輸入密碼">
             </div>
             <div class="form-actions">
                 <button class="btn" onclick="closeModal('registerModal')">取消</button>
-                <button class="btn" style="background:#e94560" onclick="register()">註冊</button>
+                <button class="btn btn-primary" onclick="register()">註冊帳號</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="buyModal">
         <div class="modal-content">
-            <h2>購買商品</h2>
+            <h2>立即購買</h2>
             <div class="form-group">
-                <label>商品名</label>
-                <div id="buyProductName"></div>
+                <label>商品名稱</label>
+                <div id="buyProductName" style="font-weight:bold;color:#0b90d8"></div>
             </div>
             <div class="form-group">
-                <label>價格</label>
-                <div id="buyProductPrice" style="color:#e94560;font-weight:bold"></div>
+                <label>商品價格</label>
+                <div id="buyProductPrice" style="color:#e74c3c;font-weight:bold;font-size:18px"></div>
             </div>
             <div class="form-actions">
                 <button class="btn" onclick="closeModal('buyModal')">取消</button>
-                <button class="btn" style="background:#e94560" onclick="confirmBuy()">確認購買</button>
+                <button class="btn btn-primary" onclick="confirmBuy()">確認購買</button>
             </div>
         </div>
     </div>
@@ -146,6 +151,7 @@
         let selectedProduct = null;
 
         async function init() {
+            document.querySelector('.notice').style.display = 'none';
             await loadSettings();
             await loadCategories();
             await loadProducts();
@@ -157,7 +163,7 @@
             if (data) {
                 data.forEach(s => {
                     if (s.id === 'site_name') document.getElementById('siteName').textContent = s.value;
-                    if (s.id === 'bannerTitle') document.getElementById('bannerTitle').textContent = s.value;
+                    if (s.id === 'site_name') document.getElementById('bannerTitle').textContent = s.value;
                     if (s.id === 'site_description') document.getElementById('bannerDesc').textContent = s.value;
                 });
             }
@@ -166,7 +172,7 @@
         async function loadCategories() {
             const { data } = await supabaseClient.from('categories').select('*').order('sort');
             const container = document.getElementById('categories');
-            container.innerHTML = '<button class="cat-btn active" onclick="filterCategory(null)">全部</button>';
+            container.innerHTML = '<button class="cat-btn active" onclick="filterCategory(null)">全部商品</button>';
             data?.forEach(cat => {
                 container.innerHTML += `<button class="cat-btn" onclick="filterCategory('${cat.id}')">${cat.name}</button>`;
             });
@@ -182,18 +188,18 @@
         function renderProducts(products) {
             const container = document.getElementById('products');
             if (products.length === 0) {
-                container.innerHTML = '<div class="empty">暂无商品</div>';
+                container.innerHTML = '<div class="empty">暫無商品，敬請期待！</div>';
                 return;
             }
             container.innerHTML = products.map(p => `
                 <div class="product-card">
-                    ${p.image_url ? `<img class="product-img" src="${p.image_url}" alt="${p.name}">` : '<div class="product-img">暂无图片</div>'}
+                    ${p.image_url ? `<div class="product-img"><img src="${p.image_url}" alt="${p.name}"></div>` : '<div class="product-img">暫無圖片</div>'}
                     <div class="product-info">
                         <div class="product-name">${p.name}</div>
-                        <div class="product-desc">${p.description || ''}</div>
+                        <div class="product-desc">${p.description || '商品描述'}</div>
                         <div class="product-footer">
-                            <span class="price">${p.price} 玄封幣</span>
-                            <button class="buy-btn" onclick="buyProduct('${p.id}')">購買</button>
+                            <span class="price">${p.price} 代幣</span>
+                            <button class="buy-btn" onclick="buyProduct('${p.id}')">立即購買</button>
                         </div>
                     </div>
                 </div>
@@ -224,7 +230,7 @@
         function showLogin() { document.getElementById('loginModal').classList.add('show'); }
         function showRegister() { document.getElementById('registerModal').classList.add('show'); }
         function showOrders() { 
-            if (!currentUser) { alert('請先登入'); return; }
+            if (!currentUser) { alert('請先登入！'); showLogin(); return; }
             loadOrders();
             document.getElementById('ordersModal').classList.add('show');
         }
@@ -250,8 +256,9 @@
                 } 
             });
             if (error) { alert(error.message); return; }
-            alert('註冊成功，請前往信箱驗證');
+            alert('註冊成功！');
             closeModal('registerModal');
+            login();
         }
 
         async function logout() {
@@ -260,11 +267,11 @@
         }
 
         async function buyProduct(id) {
-            if (!currentUser) { alert('請先登入'); showLogin(); return; }
+            if (!currentUser) { alert('請先登入！'); showLogin(); return; }
             const { data } = await supabaseClient.from('products').select('*').eq('id', id).single();
             selectedProduct = data;
             document.getElementById('buyProductName').textContent = data.name;
-            document.getElementById('buyProductPrice').textContent = data.price + ' 玄封幣';
+            document.getElementById('buyProductPrice').textContent = data.price + ' 代幣';
             document.getElementById('buyModal').classList.add('show');
         }
 
@@ -272,8 +279,8 @@
             const price = selectedProduct.price;
             const { data: user } = await supabaseClient.from('users').select('*').eq('id', currentUser.id).single();
             
-            if (user.balance < price) {
-                alert('餘額不足');
+            if (!user || user.balance < price) {
+                alert('餘額不足，請聯繫管理員充值！');
                 return;
             }
 
@@ -287,7 +294,7 @@
 
             if (error) { alert(error.message); return; }
 
-            alert('購買成功！');
+            alert('購買成功！感謝您的購買～');
             closeModal('buyModal');
             checkAuth();
         }
@@ -296,13 +303,13 @@
             const { data } = await supabaseClient.from('orders').select('*, products(name)').eq('user_id', currentUser.id).order('created_at', { ascending: false });
             const container = document.getElementById('ordersList');
             if (!data || data.length === 0) {
-                container.innerHTML = '<div class="empty">暂无购买记录</div>';
+                container.innerHTML = '<div class="empty">暫無購買記錄</div>';
                 return;
             }
             container.innerHTML = data.map(o => `
                 <div class="order-item">
                     <span>${o.products?.name || '商品'}</span>
-                    <span class="order-status ${o.status}">${o.status === 'completed' ? '已完成' : '待處理'}</span>
+                    <span class="order-status ${o.status}">${o.status === 'completed' ? '已完成' : '處理中'}</span>
                 </div>
             `).join('');
         }

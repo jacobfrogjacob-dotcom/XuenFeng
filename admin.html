@@ -7,52 +7,48 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: #1a1a2e; color: #fff; }
-        .header { background: #16213e; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: bold; color: #e94560; }
-        .user-info { display: flex; align-items: center; gap: 15px; }
+        body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f0f4f8; color: #333; }
+        .header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 20px; font-weight: bold; color: #0b90d8; }
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        .sidebar { width: 200px; background: #16213e; padding: 20px; border-radius: 10px; position: fixed; top: 70px; left: 20px; }
-        .menu-item { padding: 12px 15px; cursor: pointer; border-radius: 5px; margin-bottom: 5px; }
-        .menu-item:hover, .menu-item.active { background: #0f3460; }
-        .menu-item.active { background: #e94560; }
-        .main { margin-left: 230px; }
-        .card { background: #16213e; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .card h2 { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #0f3460; }
-        .btn { background: #0f3460; border: none; color: #fff; padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px; }
-        .btn:hover { background: #e94560; }
-        .btn-primary { background: #e94560; }
-        .btn-danger { background: #e74c3c; }
-        .btn-success { background: #27ae60; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
-        th { background: #0f3460; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; background: #0f3460; border: 1px solid #333; border-radius: 5px; color: #fff; }
-        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .stat-card { background: #0f3460; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-card .num { font-size: 32px; font-weight: bold; color: #e94560; }
-        .stat-card .label { color: #aaa; margin-top: 5px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .sidebar { width: 180px; background: #fff; padding: 15px; border-radius: 8px; position: fixed; top: 70px; left: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .menu-item { padding: 10px 15px; cursor: pointer; border-radius: 4px; margin-bottom: 3px; font-size: 14px; color: #666; }
+        .menu-item:hover, .menu-item.active { background: #e6f3fa; color: #0b90d8; }
+        .menu-item.active { background: #0b90d8; color: #fff; }
+        .main { margin-left: 210px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .card h2 { margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .btn { background: #e6eef5; border: none; color: #333; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-right: 8px; }
+        .btn:hover { background: #0b90d8; color: #fff; }
+        .btn-primary { background: #0b90d8; color: #fff; }
+        .btn-danger { background: #e74c3c; color: #fff; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f9f9f9; color: #666; font-weight: normal; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: #666; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .stat-card { background: #f9f9f9; padding: 15px; border-radius: 6px; text-align: center; }
+        .stat-card .num { font-size: 24px; font-weight: bold; color: #0b90d8; }
+        .stat-card .label { color: #888; font-size: 12px; margin-top: 5px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.show { display: flex; }
-        .modal-content { background: #16213e; padding: 30px; border-radius: 10px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
-        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; }
-        .search-bar input { flex: 1; }
-        .badge { padding: 3px 8px; border-radius: 3px; font-size: 12px; }
-        .badge-success { background: #27ae60; }
-        .badge-warning { background: #f39c12; }
-        .badge-error { background: #e74c3c; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 12px; }
+        .badge { padding: 2px 6px; border-radius: 3px; font-size: 11px; }
+        .badge-success { background: #27ae60; color: #fff; }
+        .badge-error { background: #e74c3c; color: #fff; }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="logo">玄封商店 - 後台</div>
-        <div class="user-info">
+        <div class="logo">玄封商店 後台</div>
+        <div>
             <button class="btn" onclick="location.href='index.html'">返回前台</button>
             <button class="btn btn-danger" onclick="logout()">登出</button>
         </div>
@@ -60,143 +56,69 @@
 
     <div class="container">
         <div class="sidebar">
-            <div class="menu-item active" onclick="showTab('dashboard')">📊 儀表板</div>
-            <div class="menu-item" onclick="showTab('settings')">⚙️ 網站設置</div>
-            <div class="menu-item" onclick="showTab('categories')">📁 分類管理</div>
-            <div class="menu-item" onclick="showTab('products')">📦 商品管理</div>
-            <div class="menu-item" onclick="showTab('orders')">📋 訂單管理</div>
-            <div class="menu-item" onclick="showTab('users')">👤 用戶管理</div>
-            <div class="menu-item" onclick="showTab('addBalance')">💰 充值代幣</div>
+            <div class="menu-item active" onclick="showTab('dashboard', this)">儀表板</div>
+            <div class="menu-item" onclick="showTab('settings', this)">網站設置</div>
+            <div class="menu-item" onclick="showTab('categories', this)">分類管理</div>
+            <div class="menu-item" onclick="showTab('products', this)">商品管理</div>
+            <div class="menu-item" onclick="showTab('orders', this)">訂單管理</div>
+            <div class="menu-item" onclick="showTab('users', this)">用戶管理</div>
+            <div class="menu-item" onclick="showTab('addBalance', this)">充值代幣</div>
         </div>
 
         <div class="main">
             <div class="tab-content active" id="dashboard">
                 <div class="grid">
-                    <div class="stat-card">
-                        <div class="num" id="statUsers">0</div>
-                        <div class="label">總用戶</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="num" id="statProducts">0</div>
-                        <div class="label">總商品</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="num" id="statOrders">0</div>
-                        <div class="label">總訂單</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="num" id="statRevenue">0</div>
-                        <div class="label">總消費(代幣)</div>
-                    </div>
+                    <div class="stat-card"><div class="num" id="statUsers">0</div><div class="label">總用戶</div></div>
+                    <div class="stat-card"><div class="num" id="statProducts">0</div><div class="label">總商品</div></div>
+                    <div class="stat-card"><div class="num" id="statOrders">0</div><div class="label">總訂單</div></div>
+                    <div class="stat-card"><div class="num" id="statRevenue">0</div><div class="label">總消費</div></div>
                 </div>
             </div>
 
             <div class="tab-content" id="settings">
                 <div class="card">
                     <h2>網站設置</h2>
-                    <div class="form-group">
-                        <label>網站名稱</label>
-                        <input type="text" id="siteName">
-                    </div>
-                    <div class="form-group">
-                        <label>網站描述</label>
-                        <input type="text" id="siteDesc">
-                    </div>
-                    <div class="form-group">
-                        <label>LOGO 網址</label>
-                        <input type="text" id="logoUrl">
-                    </div>
-                    <div class="form-group">
-                        <label>BANNER 網址</label>
-                        <input type="text" id="bannerUrl">
-                    </div>
+                    <div class="form-group"><label>網站名稱</label><input type="text" id="siteName"></div>
+                    <div class="form-group"><label>網站描述</label><input type="text" id="siteDesc"></div>
+                    <div class="form-group"><label>LOGO 網址</label><input type="text" id="logoUrl"></div>
+                    <div class="form-group"><label>BANNER 網址</label><input type="text" id="bannerUrl"></div>
                     <button class="btn btn-primary" onclick="saveSettings()">保存設置</button>
                 </div>
             </div>
 
             <div class="tab-content" id="categories">
                 <div class="card">
-                    <h2>分類管理 <button class="btn btn-primary" onclick="showCategoryModal()">+ 新增分類</button></h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>名稱</th>
-                                <th>描述</th>
-                                <th>排序</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categoriesList"></tbody>
-                    </table>
+                    <h2>分類管理 <button class="btn btn-primary" onclick="showCategoryModal()">+ 新增</button></h2>
+                    <table><thead><tr><th>名稱</th><th>描述</th><th>排序</th><th>操作</th></tr></thead><tbody id="categoriesList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="products">
                 <div class="card">
-                    <h2>商品管理 <button class="btn btn-primary" onclick="showProductModal()">+ 新增商品</button></h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>圖片</th>
-                                <th>名稱</th>
-                                <th>分類</th>
-                                <th>價格</th>
-                                <th>庫存</th>
-                                <th>狀態</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="productsList"></tbody>
-                    </table>
+                    <h2>商品管理 <button class="btn btn-primary" onclick="showProductModal()">+ 新增</button></h2>
+                    <table><thead><tr><th>圖片</th><th>名稱</th><th>分類</th><th>價格</th><th>庫存</th><th>狀態</th><th>操作</th></tr></thead><tbody id="productsList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="orders">
                 <div class="card">
                     <h2>訂單管理</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>訂單ID</th>
-                                <th>用戶</th>
-                                <th>商品</th>
-                                <th>狀態</th>
-                                <th>時間</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersList"></tbody>
-                    </table>
+                    <table><thead><tr><th>訂單ID</th><th>用戶</th><th>商品</th><th>狀態</th><th>時間</th></tr></thead><tbody id="ordersList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="users">
                 <div class="card">
                     <h2>用戶管理</h2>
-                    <div class="search-bar">
-                        <input type="text" id="userSearch" placeholder="搜尋用戶..." oninput="searchUsers()">
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>用戶名</th>
-                                <th>信箱</th>
-                                <th>餘額</th>
-                                <th>角色</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersList"></tbody>
-                    </table>
+                    <div class="search-bar"><input type="text" id="userSearch" placeholder="搜尋用戶..." oninput="searchUsers()"></div>
+                    <table><thead><tr><th>用戶名</th><th>信箱</th><th>餘額</th><th>操作</th></tr></thead><tbody id="usersList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="addBalance">
                 <div class="card">
                     <h2>充值代幣</h2>
-                    <div class="form-group">
-                        <label>搜尋用戶</label>
-                        <input type="text" id="searchUser" placeholder="輸入用戶名或信箱..." oninput="searchUserForCharge()">
-                    </div>
+                    <div class="form-group"><label>搜尋用戶</label><input type="text" id="searchUser" placeholder="輸入用戶名或信箱..." oninput="searchUserForCharge()"></div>
                     <div id="searchResult"></div>
                 </div>
             </div>
@@ -206,18 +128,9 @@
     <div class="modal" id="categoryModal">
         <div class="modal-content">
             <h2>分類</h2>
-            <div class="form-group">
-                <label>名稱</label>
-                <input type="text" id="catName">
-            </div>
-            <div class="form-group">
-                <label>描述</label>
-                <textarea id="catDesc"></textarea>
-            </div>
-            <div class="form-group">
-                <label>排序</label>
-                <input type="number" id="catSort" value="0">
-            </div>
+            <div class="form-group"><label>名稱</label><input type="text" id="catName"></div>
+            <div class="form-group"><label>描述</label><textarea id="catDesc"></textarea></div>
+            <div class="form-group"><label>排序</label><input type="number" id="catSort" value="0"></div>
             <input type="hidden" id="catId">
             <div class="form-actions">
                 <button class="btn" onclick="closeModal('categoryModal')">取消</button>
@@ -231,57 +144,21 @@
         <div class="modal-content">
             <h2>商品</h2>
             <div class="form-row">
-                <div class="form-group">
-                    <label>名稱</label>
-                    <input type="text" id="prodName">
-                </div>
-                <div class="form-group">
-                    <label>分類</label>
-                    <select id="prodCat"></select>
-                </div>
+                <div class="form-group"><label>名稱</label><input type="text" id="prodName"></div>
+                <div class="form-group"><label>分類</label><select id="prodCat"></select></div>
             </div>
-            <div class="form-group">
-                <label>描述</label>
-                <textarea id="prodDesc"></textarea>
-            </div>
+            <div class="form-group"><label>描述</label><textarea id="prodDesc"></textarea></div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>價格 (代幣)</label>
-                    <input type="number" id="prodPrice">
-                </div>
-                <div class="form-group">
-                    <label>庫存 (-1為無限)</label>
-                    <input type="number" id="prodStock" value="-1">
-                </div>
+                <div class="form-group"><label>價格</label><input type="number" id="prodPrice"></div>
+                <div class="form-group"><label>庫存 (-1無限)</label><input type="number" id="prodStock" value="-1"></div>
             </div>
-            <div class="form-group">
-                <label>圖片網址</label>
-                <input type="text" id="prodImg">
-            </div>
-            <div class="form-group">
-                <label>自動發貨內容</label>
-                <textarea id="prodDeliver" placeholder="購買後自動發送的內容"></textarea>
-            </div>
+            <div class="form-group"><label>圖片網址</label><input type="text" id="prodImg"></div>
+            <div class="form-group"><label>自動發貨內容</label><textarea id="prodDeliver"></textarea></div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>自動發貨</label>
-                    <select id="prodAuto">
-                        <option value="0">關閉</option>
-                        <option value="1">開啟</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>顯示</label>
-                    <select id="prodVisible">
-                        <option value="1">顯示</option>
-                        <option value="0">隱藏</option>
-                    </select>
-                </div>
+                <div class="form-group"><label>自動發貨</label><select id="prodAuto"><option value="0">關閉</option><option value="1">開啟</option></select></div>
+                <div class="form-group"><label>顯示</label><select id="prodVisible"><option value="1">顯示</option><option value="0">隱藏</option></select></div>
             </div>
-            <div class="form-group">
-                <label>排序</label>
-                <input type="number" id="prodSort" value="0">
-            </div>
+            <div class="form-group"><label>排序</label><input type="number" id="prodSort" value="0"></div>
             <input type="hidden" id="prodId">
             <div class="form-actions">
                 <button class="btn" onclick="closeModal('productModal')">取消</button>
@@ -309,25 +186,10 @@
             loadStats();
         }
 
-            loadSettings();
-            loadCategories();
-            loadProducts();
-            loadOrders();
-            loadUsers();
-            loadStats();
-        }
-
-        function showTab(tab) {
+        function showTab(tab, el) {
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById(tab).classList.add('active');
-        }
-
-        function showTab(tab) {
-            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            el.classList.add('active');
             document.getElementById(tab).classList.add('active');
         }
 
@@ -335,11 +197,9 @@
             const { count: users } = await supabaseClient.from('users').select('*', { count: 'exact', head: true });
             const { count: products } = await supabaseClient.from('products').select('*', { count: 'exact', head: true });
             const { count: orders } = await supabaseClient.from('orders').select('*', { count: 'exact', head: true });
-            
             document.getElementById('statUsers').textContent = users;
             document.getElementById('statProducts').textContent = products;
             document.getElementById('statOrders').textContent = orders;
-
             const { data: orderData } = await supabaseClient.from('orders').select('products(price)');
             const revenue = orderData?.reduce((sum, o) => sum + (o.products?.price || 0), 0) || 0;
             document.getElementById('statRevenue').textContent = revenue;
@@ -362,9 +222,7 @@
                 { id: 'logo_url', value: document.getElementById('logoUrl').value },
                 { id: 'banner_url', value: document.getElementById('bannerUrl').value }
             ];
-            for (const u of updates) {
-                await supabaseClient.from('settings').upsert(u);
-            }
+            for (const u of updates) { await supabaseClient.from('settings').upsert(u); }
             alert('保存成功');
         }
 
@@ -372,23 +230,13 @@
             const { data } = await supabaseClient.from('categories').select('*').order('sort');
             categories = data || [];
             renderCategories();
-            
             const select = document.getElementById('prodCat');
             select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         }
 
         function renderCategories() {
             const tbody = document.getElementById('categoriesList');
-            tbody.innerHTML = categories.map(c => `
-                <tr>
-                    <td>${c.name}</td>
-                    <td>${c.description || ''}</td>
-                    <td>${c.sort}</td>
-                    <td>
-                        <button class="btn" onclick="editCategory('${c.id}')">編輯</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = categories.map(c => `<tr><td>${c.name}</td><td>${c.description||''}</td><td>${c.sort}</td><td><button class="btn" onclick="editCategory('${c.id}')">編輯</button></td></tr>`).join('');
         }
 
         function showCategoryModal(id = null) {
@@ -410,11 +258,7 @@
 
         async function saveCategory() {
             const id = document.getElementById('catId').value;
-            const data = {
-                name: document.getElementById('catName').value,
-                description: document.getElementById('catDesc').value,
-                sort: parseInt(document.getElementById('catSort').value)
-            };
+            const data = { name: document.getElementById('catName').value, description: document.getElementById('catDesc').value, sort: parseInt(document.getElementById('catSort').value) };
             if (id) data.id = id;
             await supabaseClient.from('categories').upsert(data);
             closeModal('categoryModal');
@@ -438,19 +282,7 @@
 
         function renderProducts() {
             const tbody = document.getElementById('productsList');
-            tbody.innerHTML = products.map(p => `
-                <tr>
-                    <td>${p.image_url ? `<img src="${p.image_url}" width="50">` : '-'}</td>
-                    <td>${p.name}</td>
-                    <td>${p.categories?.name || '-'}</td>
-                    <td>${p.price}</td>
-                    <td>${p.stock}</td>
-                    <td><span class="badge ${p.is_visible ? 'badge-success' : 'badge-error'}">${p.is_visible ? '顯示' : '隱藏'}</span></td>
-                    <td>
-                        <button class="btn" onclick="editProduct('${p.id}')">編輯</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = products.map(p => `<tr><td>${p.image_url ? '<img src="'+p.image_url+'" width="40">' : '-'}</td><td>${p.name}</td><td>${p.categories?.name||'-'}</td><td>${p.price}</td><td>${p.stock}</td><td><span class="badge ${p.is_visible?'badge-success':'badge-error'}">${p.is_visible?'顯示':'隱藏'}</span></td><td><button class="btn" onclick="editProduct('${p.id}')">編輯</button></td></tr>`).join('');
         }
 
         function showProductModal(id = null) {
@@ -515,15 +347,7 @@
         async function loadOrders() {
             const { data } = await supabaseClient.from('orders').select('*, users(email), products(name)').order('created_at', { ascending: false });
             const tbody = document.getElementById('ordersList');
-            tbody.innerHTML = data?.map(o => `
-                <tr>
-                    <td>${o.id.slice(0,8)}</td>
-                    <td>${o.users?.email || '-'}</td>
-                    <td>${o.products?.name || '-'}</td>
-                    <td><span class="badge badge-success">${o.status}</span></td>
-                    <td>${new Date(o.created_at).toLocaleString()}</td>
-                </tr>
-            `).join('') || '';
+            tbody.innerHTML = data?.map(o => `<tr><td>${o.id.slice(0,8)}</td><td>${o.users?.email||'-'}</td><td>${o.products?.name||'-'}</td><td><span class="badge badge-success">${o.status}</span></td><td>${new Date(o.created_at).toLocaleString()}</td></tr>`).join('') || '';
         }
 
         async function loadUsers() {
@@ -533,25 +357,13 @@
 
         function renderUsers(users) {
             const tbody = document.getElementById('usersList');
-            tbody.innerHTML = users.map(u => `
-                <tr>
-                    <td>${u.username || '-'}</td>
-                    <td>${u.email}</td>
-                    <td>${u.balance}</td>
-                    <td>${u.role}</td>
-                    <td>
-                        <button class="btn" onclick="editUserBalance('${u.id}')">調整餘額</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = users.map(u => `<tr><td>${u.username||'-'}</td><td>${u.email}</td><td>${u.balance}</td><td><button class="btn" onclick="editUserBalance('${u.id}')">調整</button></td></tr>`).join('');
         }
 
         async function searchUsers() {
             const q = document.getElementById('userSearch').value.toLowerCase();
             const { data } = await supabaseClient.from('users').select('*');
-            const filtered = (data || []).filter(u => 
-                u.email.toLowerCase().includes(q) || (u.username || '').toLowerCase().includes(q)
-            );
+            const filtered = (data || []).filter(u => u.email.toLowerCase().includes(q) || (u.username || '').toLowerCase().includes(q));
             renderUsers(filtered);
         }
 
@@ -569,28 +381,13 @@
             if (q.length < 2) { document.getElementById('searchResult').innerHTML = ''; return; }
             const { data } = await supabaseClient.from('users').select('*').ilike('username', `%${q}%`);
             const container = document.getElementById('searchResult');
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="empty">無結果</div>';
-                return;
-            }
-            container.innerHTML = data.map(u => `
-                <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-                    <div>
-                        <div>${u.username || u.email}</div>
-                        <div style="color:#666">餘額: ${u.balance}</div>
-                    </div>
-                    <div style="display:flex;gap:10px">
-                        <input type="number" id="charge_${u.id}" placeholder="數量" style="width:100px">
-                        <button class="btn btn-primary" onclick="chargeBalance('${u.id}')">充值</button>
-                    </div>
-                </div>
-            `).join('');
+            if (!data || data.length === 0) { container.innerHTML = '<div class="empty">無結果</div>'; return; }
+            container.innerHTML = data.map(u => `<div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px"><div><div>${u.username||u.email}</div><div style="color:#888">餘額: ${u.balance}</div></div><div style="display:flex;gap:8px"><input type="number" id="charge_${u.id}" placeholder="數量" style="width:80px"><button class="btn btn-primary" onclick="chargeBalance('${u.id}')">充值</button></div></div>`).join('');
         }
 
         async function chargeBalance(userId) {
             const amount = parseInt(document.getElementById(`charge_${userId}`).value);
             if (!amount || amount <= 0) { alert('請輸入數量'); return; }
-            
             const { data } = await supabaseClient.from('users').select('*').eq('id', userId).single();
             await supabaseClient.from('users').update({ balance: (data.balance || 0) + amount }).eq('id', userId);
             alert('充值成功');
