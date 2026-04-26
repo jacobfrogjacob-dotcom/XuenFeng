@@ -8,88 +8,71 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f0f4f8; color: #333; }
-        .header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: bold; color: #0b90d8; }
-        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        .sidebar { width: 180px; background: #fff; padding: 15px; border-radius: 8px; position: fixed; top: 70px; left: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .menu-item { padding: 10px 15px; cursor: pointer; border-radius: 4px; margin-bottom: 3px; font-size: 14px; color: #666; }
+        .header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 18px; font-weight: bold; color: #0b90d8; }
+        .container { max-width: 1400px; margin: 15px auto; padding: 0 15px; }
+        .sidebar { width: 160px; background: #fff; padding: 12px; border-radius: 8px; position: fixed; top: 60px; left: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .menu-item { padding: 10px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 3px; font-size: 13px; color: #666; }
         .menu-item:hover, .menu-item.active { background: #e6f3fa; color: #0b90d8; }
-        .menu-item.active { background: #0b90d8; color: #fff; }
-        .main { margin-left: 210px; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .card h2 { margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .btn { background: #e6eef5; border: none; color: #333; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-right: 8px; }
+        .main { margin-left: 185px; }
+        .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .card h2 { margin-bottom: 12px; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .btn { background: #e6eef5; border: none; color: #333; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 6px; }
         .btn:hover { background: #0b90d8; color: #fff; }
         .btn-primary { background: #0b90d8; color: #fff; }
         .btn-danger { background: #e74c3c; color: #fff; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f9f9f9; color: #666; font-weight: normal; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: #666; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f9f9f9; color: #666; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 4px; font-size: 12px; color: #666; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .stat-card { background: #f9f9f9; padding: 15px; border-radius: 6px; text-align: center; }
-        .stat-card .num { font-size: 24px; font-weight: bold; color: #0b90d8; }
-        .stat-card .label { color: #888; font-size: 12px; margin-top: 5px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .stat-card { background: #f9f9f9; padding: 12px; border-radius: 6px; text-align: center; }
+        .stat-card .num { font-size: 20px; font-weight: bold; color: #0b90d8; }
+        .stat-card .label { color: #888; font-size: 11px; margin-top: 4px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
         .modal.show { display: flex; }
-        .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
-        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+        .modal-content { background: #fff; padding: 18px; border-radius: 8px; max-width: 450px; width: 100%; max-height: 80vh; overflow-y: auto; }
+        .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .search-bar { display: flex; gap: 10px; margin-bottom: 12px; }
-        .badge { padding: 2px 6px; border-radius: 3px; font-size: 11px; }
+        .badge { padding: 2px 6px; border-radius: 3px; font-size: 10px; }
         .badge-success { background: #27ae60; color: #fff; }
         .badge-error { background: #e74c3c; color: #fff; }
 
         @media (max-width: 768px) {
-            .sidebar { width: 100%; position: static; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 5px; }
-            .menu-item { flex: 1 1 auto; text-align: center; padding: 8px 12px; font-size: 12px; }
+            .sidebar { width: 100%; position: static; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+            .menu-item { flex: 1 1 auto; text-align: center; padding: 8px 10px; font-size: 11px; }
             .main { margin-left: 0; }
-            .card { padding: 15px; }
-            .card h2 { font-size: 14px; }
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stat-card { padding: 10px; }
-            .stat-card .num { font-size: 18px; }
-            table { font-size: 12px; }
-            th, td { padding: 8px 5px; }
-            .form-row { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 480px) {
-            .header { flex-direction: column; gap: 10px; text-align: center; }
-            .sidebar { justify-content: center; }
-            .menu-item { flex: 1 1 45%; }
-            .grid { grid-template-columns: 1fr 1fr; }
-            .stat-card .label { font-size: 11px; }
-            .btn { padding: 6px 10px; font-size: 12px; }
+            .grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="logo">玄封商店 後台</div>
+        <div class="logo">⚙️ 玄封商店 後台</div>
         <div>
-            <button class="btn" onclick="location.href='index.html'">返回前台</button>
+            <button class="btn" onclick="location.href='index.html'">前台</button>
             <button class="btn btn-danger" onclick="logout()">登出</button>
         </div>
     </header>
 
     <div class="container">
         <div class="sidebar">
-            <div class="menu-item active" onclick="showTab('dashboard', this)">儀表板</div>
-            <div class="menu-item" onclick="showTab('settings', this)">網站設置</div>
-            <div class="menu-item" onclick="showTab('categories', this)">分類管理</div>
-            <div class="menu-item" onclick="showTab('products', this)">商品管理</div>
-            <div class="menu-item" onclick="showTab('orders', this)">訂單管理</div>
-            <div class="menu-item" onclick="showTab('users', this)">用戶管理</div>
-            <div class="menu-item" onclick="showTab('addBalance', this)">充值代幣</div>
+            <div class="menu-item active" onclick="showTab('dashboard', this)">📊 儀表板</div>
+            <div class="menu-item" onclick="showTab('settings', this)">⚙️ 設置</div>
+            <div class="menu-item" onclick="showTab('categories', this)">📁 分類</div>
+            <div class="menu-item" onclick="showTab('products', this)">📦 商品</div>
+            <div class="menu-item" onclick="showTab('orders', this)">📋 訂單</div>
+            <div class="menu-item" onclick="showTab('users', this)">👤 用戶</div>
+            <div class="menu-item" onclick="showTab('coins', this)">💰 代幣</div>
         </div>
 
         <div class="main">
             <div class="tab-content active" id="dashboard">
-                <div class="grid">
+                <div class="grid" style="margin-bottom:15px">
                     <div class="stat-card"><div class="num" id="statUsers">0</div><div class="label">總用戶</div></div>
                     <div class="stat-card"><div class="num" id="statProducts">0</div><div class="label">總商品</div></div>
                     <div class="stat-card"><div class="num" id="statOrders">0</div><div class="label">總訂單</div></div>
@@ -100,47 +83,55 @@
             <div class="tab-content" id="settings">
                 <div class="card">
                     <h2>網站設置</h2>
-                    <div class="form-group"><label>網站名稱</label><input type="text" id="siteName"></div>
-                    <div class="form-group"><label>網站描述</label><input type="text" id="siteDesc"></div>
-                    <div class="form-group"><label>LOGO 網址</label><input type="text" id="logoUrl"></div>
-                    <div class="form-group"><label>BANNER 網址</label><input type="text" id="bannerUrl"></div>
-                    <button class="btn btn-primary" onclick="saveSettings()">保存設置</button>
+                    <div class="form-row">
+                        <div class="form-group"><label>網站名稱</label><input type="text" id="siteName"></div>
+                        <div class="form-group"><label>網站描述</label><input type="text" id="siteDesc"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>玄封幣圖標網址</label><input type="text" id="xfIcon"></div>
+                        <div class="form-group"><label>巔峰幣圖標網址</label><input type="text" id="dfIcon"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>每日領取數量</label><input type="number" id="dailyBonus" value="50"></div>
+                        <div class="form-group"><label>兌換比例</label><input type="number" id="exchangeRate" value="100"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">保存</button>
                 </div>
             </div>
 
             <div class="tab-content" id="categories">
                 <div class="card">
                     <h2>分類管理 <button class="btn btn-primary" onclick="showCategoryModal()">+ 新增</button></h2>
-                    <table><thead><tr><th>名稱</th><th>描述</th><th>排序</th><th>操作</th></tr></thead><tbody id="categoriesList"></tbody></table>
+                    <table><thead><tr><th>名稱</th><th>描述</th><th>操作</th></tr></thead><tbody id="categoriesList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="products">
                 <div class="card">
                     <h2>商品管理 <button class="btn btn-primary" onclick="showProductModal()">+ 新增</button></h2>
-                    <table><thead><tr><th>圖片</th><th>名稱</th><th>分類</th><th>價格</th><th>庫存</th><th>狀態</th><th>操作</th></tr></thead><tbody id="productsList"></tbody></table>
+                    <table><thead><tr><th>名稱</th><th>分類</th><th>價格</th><th>庫存</th><th>操作</th></tr></thead><tbody id="productsList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="orders">
                 <div class="card">
                     <h2>訂單管理</h2>
-                    <table><thead><tr><th>訂單ID</th><th>用戶</th><th>商品</th><th>狀態</th><th>時間</th></tr></thead><tbody id="ordersList"></tbody></table>
+                    <table><thead><tr><th>商品</th><th>用戶</th><th>狀態</th></tr></thead><tbody id="ordersList"></tbody></table>
                 </div>
             </div>
 
             <div class="tab-content" id="users">
                 <div class="card">
                     <h2>用戶管理</h2>
-                    <div class="search-bar"><input type="text" id="userSearch" placeholder="搜尋用戶..." oninput="searchUsers()"></div>
-                    <table><thead><tr><th>用戶名</th><th>信箱</th><th>餘額</th><th>操作</th></tr></thead><tbody id="usersList"></tbody></table>
+                    <div class="search-bar"><input type="text" id="userSearch" placeholder="搜尋..." oninput="searchUsers()"></div>
+                    <table><thead><tr><th>用戶名</th><th>信箱</th><th>玄封幣</th><th>巔峰幣</th><th>操作</th></tr></thead><tbody id="usersList"></tbody></table>
                 </div>
             </div>
 
-            <div class="tab-content" id="addBalance">
+            <div class="tab-content" id="coins">
                 <div class="card">
                     <h2>充值代幣</h2>
-                    <div class="form-group"><label>搜尋用戶</label><input type="text" id="searchUser" placeholder="輸入用戶名或信箱..." oninput="searchUserForCharge()"></div>
+                    <div class="form-group"><label>搜尋用戶</label><input type="text" id="searchUser" placeholder="輸入用戶名..." oninput="searchUserForCharge()"></div>
                     <div id="searchResult"></div>
                 </div>
             </div>
@@ -172,10 +163,9 @@
             <div class="form-group"><label>描述</label><textarea id="prodDesc"></textarea></div>
             <div class="form-row">
                 <div class="form-group"><label>價格</label><input type="number" id="prodPrice"></div>
-                <div class="form-group"><label>庫存 (-1無限)</label><input type="number" id="prodStock" value="-1"></div>
+                <div class="form-group"><label>庫存(-1無限)</label><input type="number" id="prodStock" value="-1"></div>
             </div>
             <div class="form-group"><label>圖片網址</label><input type="text" id="prodImg"></div>
-            <div class="form-group"><label>自動發貨內容</label><textarea id="prodDeliver"></textarea></div>
             <div class="form-row">
                 <div class="form-group"><label>自動發貨</label><select id="prodAuto"><option value="0">關閉</option><option value="1">開啟</option></select></div>
                 <div class="form-group"><label>顯示</label><select id="prodVisible"><option value="1">顯示</option><option value="0">隱藏</option></select></div>
@@ -228,12 +218,14 @@
         }
 
         async function loadSettings() {
-            const { data } = await supabaseClient.from('settings').select('*');
+            const { data } = await supabaseClient.from('settings').select('id, value');
             data?.forEach(s => {
                 if (s.id === 'site_name') document.getElementById('siteName').value = s.value;
                 if (s.id === 'site_description') document.getElementById('siteDesc').value = s.value;
-                if (s.id === 'logo_url') document.getElementById('logoUrl').value = s.value;
-                if (s.id === 'banner_url') document.getElementById('bannerUrl').value = s.value;
+                if (s.id === 'xuanfeng_icon') document.getElementById('xfIcon').value = s.value || '';
+                if (s.id === 'dianfeng_icon') document.getElementById('dfIcon').value = s.value || '';
+                if (s.id === 'daily_bonus') document.getElementById('dailyBonus').value = s.value || 50;
+                if (s.id === 'exchange_rate') document.getElementById('exchangeRate').value = s.value || 100;
             });
         }
 
@@ -241,17 +233,14 @@
             const updates = [
                 { id: 'site_name', value: document.getElementById('siteName').value },
                 { id: 'site_description', value: document.getElementById('siteDesc').value },
-                { id: 'logo_url', value: document.getElementById('logoUrl').value },
-                { id: 'banner_url', value: document.getElementById('bannerUrl').value }
+                { id: 'xuanfeng_icon', value: document.getElementById('xfIcon').value },
+                { id: 'dianfeng_icon', value: document.getElementById('dfIcon').value },
+                { id: 'daily_bonus', value: document.getElementById('dailyBonus').value },
+                { id: 'exchange_rate', value: document.getElementById('exchangeRate').value }
             ];
             for (const u of updates) { await supabaseClient.from('settings').upsert(u); }
             alert('保存成功');
             loadSettings();
-            loadCategories();
-            loadProducts();
-            loadOrders();
-            loadUsers();
-            loadStats();
         }
 
         async function loadCategories() {
@@ -263,8 +252,7 @@
         }
 
         function renderCategories() {
-            const tbody = document.getElementById('categoriesList');
-            tbody.innerHTML = categories.map(c => `<tr><td>${c.name}</td><td>${c.description||''}</td><td>${c.sort}</td><td><button class="btn" onclick="editCategory('${c.id}')">編輯</button></td></tr>`).join('');
+            document.getElementById('categoriesList').innerHTML = categories.map(c => `<tr><td>${c.name}</td><td>${c.description||''}</td><td><button class="btn" onclick="editCategory('${c.id}')">編輯</button></td></tr>`).join('');
         }
 
         function showCategoryModal(id = null) {
@@ -285,8 +273,12 @@
         }
 
         async function saveCategory() {
+            const data = {
+                name: document.getElementById('catName').value,
+                description: document.getElementById('catDesc').value,
+                sort: parseInt(document.getElementById('catSort').value)
+            };
             const id = document.getElementById('catId').value;
-            const data = { name: document.getElementById('catName').value, description: document.getElementById('catDesc').value, sort: parseInt(document.getElementById('catSort').value) };
             if (id) data.id = id;
             await supabaseClient.from('categories').upsert(data);
             closeModal('categoryModal');
@@ -309,8 +301,7 @@
         }
 
         function renderProducts() {
-            const tbody = document.getElementById('productsList');
-            tbody.innerHTML = products.map(p => `<tr><td>${p.image_url ? '<img src="'+p.image_url+'" width="40">' : '-'}</td><td>${p.name}</td><td>${p.categories?.name||'-'}</td><td>${p.price}</td><td>${p.stock}</td><td><span class="badge ${p.is_visible?'badge-success':'badge-error'}">${p.is_visible?'顯示':'隱藏'}</span></td><td><button class="btn" onclick="editProduct('${p.id}')">編輯</button></td></tr>`).join('');
+            document.getElementById('productsList').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>${p.categories?.name||'-'}</td><td>${p.price}</td><td>${p.stock}</td><td><button class="btn" onclick="editProduct('${p.id}')">編輯</button></td></tr>`).join('');
         }
 
         function showProductModal(id = null) {
@@ -325,7 +316,6 @@
                 document.getElementById('prodPrice').value = prod.price;
                 document.getElementById('prodStock').value = prod.stock;
                 document.getElementById('prodImg').value = prod.image_url || '';
-                document.getElementById('prodDeliver').value = prod.deliver_content || '';
                 document.getElementById('prodAuto').value = prod.auto_deliver;
                 document.getElementById('prodVisible').value = prod.is_visible;
                 document.getElementById('prodSort').value = prod.sort;
@@ -336,7 +326,6 @@
                 document.getElementById('prodPrice').value = '0';
                 document.getElementById('prodStock').value = '-1';
                 document.getElementById('prodImg').value = '';
-                document.getElementById('prodDeliver').value = '';
                 document.getElementById('prodAuto').value = '0';
                 document.getElementById('prodVisible').value = '1';
                 document.getElementById('prodSort').value = '0';
@@ -344,7 +333,6 @@
         }
 
         async function saveProduct() {
-            const id = document.getElementById('prodId').value;
             const data = {
                 name: document.getElementById('prodName').value,
                 category_id: document.getElementById('prodCat').value || null,
@@ -352,11 +340,11 @@
                 price: parseInt(document.getElementById('prodPrice').value),
                 stock: parseInt(document.getElementById('prodStock').value),
                 image_url: document.getElementById('prodImg').value,
-                deliver_content: document.getElementById('prodDeliver').value,
                 auto_deliver: parseInt(document.getElementById('prodAuto').value),
                 is_visible: parseInt(document.getElementById('prodVisible').value),
                 sort: parseInt(document.getElementById('prodSort').value)
             };
+            const id = document.getElementById('prodId').value;
             if (id) data.id = id;
             await supabaseClient.from('products').upsert(data);
             closeModal('productModal');
@@ -374,8 +362,7 @@
 
         async function loadOrders() {
             const { data } = await supabaseClient.from('orders').select('*, users(email), products(name)').order('created_at', { ascending: false });
-            const tbody = document.getElementById('ordersList');
-            tbody.innerHTML = data?.map(o => `<tr><td>${o.id.slice(0,8)}</td><td>${o.users?.email||'-'}</td><td>${o.products?.name||'-'}</td><td><span class="badge badge-success">${o.status}</span></td><td>${new Date(o.created_at).toLocaleString()}</td></tr>`).join('') || '';
+            document.getElementById('ordersList').innerHTML = data?.map(o => `<tr><td>${o.products?.name||'-'}</td><td>${o.users?.email||'-'}</td><td><span class="badge badge-success">${o.status}</span></td></tr>`).join('') || '';
         }
 
         async function loadUsers() {
@@ -384,8 +371,7 @@
         }
 
         function renderUsers(users) {
-            const tbody = document.getElementById('usersList');
-            tbody.innerHTML = users.map(u => `<tr><td>${u.username||'-'}</td><td>${u.email}</td><td>${u.balance}</td><td><button class="btn" onclick="editUserBalance('${u.id}')">調整</button></td></tr>`).join('');
+            document.getElementById('usersList').innerHTML = users.map(u => `<tr><td>${u.username||'-'}</td><td>${u.email}</td><td>${u.xuanfeng_coin||0}</td><td>${u.dianfeng_coin||0}</td><td><button class="btn" onclick="editUserBalance('${u.id}')">調整</button></td></tr>`).join('');
         }
 
         async function searchUsers() {
@@ -397,9 +383,9 @@
 
         async function editUserBalance(id) {
             const { data } = await supabaseClient.from('users').select('*').eq('id', id).single();
-            const newBalance = prompt('輸入新餘額:', data.balance);
-            if (newBalance === null) return;
-            await supabaseClient.from('users').update({ balance: parseInt(newBalance) }).eq('id', id);
+            const xf = prompt('玄封幣:', data.xuanfeng_coin || 0);
+            const df = prompt('巔峰幣:', data.dianfeng_coin || 0);
+            if (xf !== null) await supabaseClient.from('users').update({ xuanfeng_coin: parseInt(xf) || 0, dianfeng_coin: parseInt(df) || 0 }).eq('id', id);
             loadUsers();
             loadStats();
         }
@@ -409,17 +395,26 @@
             if (q.length < 2) { document.getElementById('searchResult').innerHTML = ''; return; }
             const { data } = await supabaseClient.from('users').select('*').ilike('username', `%${q}%`);
             const container = document.getElementById('searchResult');
-            if (!data || data.length === 0) { container.innerHTML = '<div class="empty">無結果</div>'; return; }
-            container.innerHTML = data.map(u => `<div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px"><div><div>${u.username||u.email}</div><div style="color:#888">餘額: ${u.balance}</div></div><div style="display:flex;gap:8px"><input type="number" id="charge_${u.id}" placeholder="數量" style="width:80px"><button class="btn btn-primary" onclick="chargeBalance('${u.id}')">充值</button></div></div>`).join('');
+            if (!data || data.length === 0) { container.innerHTML = '<div>無結果</div>'; return; }
+            container.innerHTML = data.map(u => `<div style="padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+                <div><div>${u.username||u.email}</div><div style="color:#888">玄封:${u.xuanfeng_coin||0} 巔峰:${u.dianfeng_coin||0}</div></div>
+                <div style="display:flex;gap:5px">
+                    <input type="number" id="xf_${u.id}" placeholder="玄封" style="width:60px">
+                    <input type="number" id="df_${u.id}" placeholder="巔峰" style="width:60px">
+                    <button class="btn btn-primary" onclick="chargeUser('${u.id}')">充值</button>
+                </div>
+            </div>`).join('');
         }
 
-        async function chargeBalance(userId) {
-            const amount = parseInt(document.getElementById(`charge_${userId}`).value);
-            if (!amount || amount <= 0) { alert('請輸入數量'); return; }
+        async function chargeUser(userId) {
+            const xf = parseInt(document.getElementById(`xf_${userId}`).value) || 0;
+            const df = parseInt(document.getElementById(`df_${userId}`).value) || 0;
             const { data } = await supabaseClient.from('users').select('*').eq('id', userId).single();
-            await supabaseClient.from('users').update({ balance: (data.balance || 0) + amount }).eq('id', userId);
+            await supabaseClient.from('users').update({
+                xuanfeng_coin: (data.xuanfeng_coin || 0) + xf,
+                dianfeng_coin: (data.dianfeng_coin || 0) + df
+            }).eq('id', userId);
             alert('充值成功');
-            document.getElementById(`charge_${userId}`).value = '';
             loadUsers();
             loadStats();
         }
