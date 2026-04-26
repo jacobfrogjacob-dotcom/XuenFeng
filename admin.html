@@ -298,11 +298,11 @@
         let products = [];
 
         async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { location.href = 'index.html'; return; }
             currentUser = session.user;
             
-            const { data } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+            const { data } = await supabaseClient.from('users').select('*').eq('id', session.user.id).single();
             if (!data || data.role !== 'admin') { alert('權限不足'); location.href = 'index.html'; return; }
 
             loadSettings();
@@ -321,21 +321,21 @@
         }
 
         async function loadStats() {
-            const { count: users } = await supabase.from('users').select('*', { count: 'exact', head: true });
-            const { count: products } = await supabase.from('products').select('*', { count: 'exact', head: true });
-            const { count: orders } = await supabase.from('orders').select('*', { count: 'exact', head: true });
+            const { count: users } = await supabaseClient.from('users').select('*', { count: 'exact', head: true });
+            const { count: products } = await supabaseClient.from('products').select('*', { count: 'exact', head: true });
+            const { count: orders } = await supabaseClient.from('orders').select('*', { count: 'exact', head: true });
             
             document.getElementById('statUsers').textContent = users;
             document.getElementById('statProducts').textContent = products;
             document.getElementById('statOrders').textContent = orders;
 
-            const { data: orderData } = await supabase.from('orders').select('products(price)');
+            const { data: orderData } = await supabaseClient.from('orders').select('products(price)');
             const revenue = orderData?.reduce((sum, o) => sum + (o.products?.price || 0), 0) || 0;
             document.getElementById('statRevenue').textContent = revenue;
         }
 
         async function loadSettings() {
-            const { data } = await supabase.from('settings').select('*');
+            const { data } = await supabaseClient.from('settings').select('*');
             data?.forEach(s => {
                 if (s.id === 'site_name') document.getElementById('siteName').value = s.value;
                 if (s.id === 'site_description') document.getElementById('siteDesc').value = s.value;
@@ -352,13 +352,13 @@
                 { id: 'banner_url', value: document.getElementById('bannerUrl').value }
             ];
             for (const u of updates) {
-                await supabase.from('settings').upsert(u);
+                await supabaseClient.from('settings').upsert(u);
             }
             alert('保存成功');
         }
 
         async function loadCategories() {
-            const { data } = await supabase.from('categories').select('*').order('sort');
+            const { data } = await supabaseClient.from('categories').select('*').order('sort');
             categories = data || [];
             renderCategories();
             
@@ -405,7 +405,7 @@
                 sort: parseInt(document.getElementById('catSort').value)
             };
             if (id) data.id = id;
-            await supabase.from('categories').upsert(data);
+            await supabaseClient.from('categories').upsert(data);
             closeModal('categoryModal');
             loadCategories();
         }
@@ -414,13 +414,13 @@
 
         async function deleteCategory() {
             if (!confirm('確定刪除？')) return;
-            await supabase.from('categories').delete().eq('id', document.getElementById('catId').value);
+            await supabaseClient.from('categories').delete().eq('id', document.getElementById('catId').value);
             closeModal('categoryModal');
             loadCategories();
         }
 
         async function loadProducts() {
-            const { data } = await supabase.from('products').select('*, categories(name)').order('sort');
+            const { data } = await supabaseClient.from('products').select('*, categories(name)').order('sort');
             products = data || [];
             renderProducts();
         }
@@ -487,7 +487,7 @@
                 sort: parseInt(document.getElementById('prodSort').value)
             };
             if (id) data.id = id;
-            await supabase.from('products').upsert(data);
+            await supabaseClient.from('products').upsert(data);
             closeModal('productModal');
             loadProducts();
         }
@@ -496,13 +496,13 @@
 
         async function deleteProduct() {
             if (!confirm('確定刪除？')) return;
-            await supabase.from('products').delete().eq('id', document.getElementById('prodId').value);
+            await supabaseClient.from('products').delete().eq('id', document.getElementById('prodId').value);
             closeModal('productModal');
             loadProducts();
         }
 
         async function loadOrders() {
-            const { data } = await supabase.from('orders').select('*, users(email), products(name)').order('created_at', { ascending: false });
+            const { data } = await supabaseClient.from('orders').select('*, users(email), products(name)').order('created_at', { ascending: false });
             const tbody = document.getElementById('ordersList');
             tbody.innerHTML = data?.map(o => `
                 <tr>
@@ -516,7 +516,7 @@
         }
 
         async function loadUsers() {
-            const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+            const { data } = await supabaseClient.from('users').select('*').order('created_at', { ascending: false });
             renderUsers(data || []);
         }
 
@@ -537,7 +537,7 @@
 
         async function searchUsers() {
             const q = document.getElementById('userSearch').value.toLowerCase();
-            const { data } = await supabase.from('users').select('*');
+            const { data } = await supabaseClient.from('users').select('*');
             const filtered = (data || []).filter(u => 
                 u.email.toLowerCase().includes(q) || (u.username || '').toLowerCase().includes(q)
             );
@@ -545,10 +545,10 @@
         }
 
         async function editUserBalance(id) {
-            const { data } = await supabase.from('users').select('*').eq('id', id).single();
+            const { data } = await supabaseClient.from('users').select('*').eq('id', id).single();
             const newBalance = prompt('輸入新餘額:', data.balance);
             if (newBalance === null) return;
-            await supabase.from('users').update({ balance: parseInt(newBalance) }).eq('id', id);
+            await supabaseClient.from('users').update({ balance: parseInt(newBalance) }).eq('id', id);
             loadUsers();
             loadStats();
         }
@@ -556,7 +556,7 @@
         async function searchUserForCharge() {
             const q = document.getElementById('searchUser').value;
             if (q.length < 2) { document.getElementById('searchResult').innerHTML = ''; return; }
-            const { data } = await supabase.from('users').select('*').ilike('username', `%${q}%`);
+            const { data } = await supabaseClient.from('users').select('*').ilike('username', `%${q}%`);
             const container = document.getElementById('searchResult');
             if (!data || data.length === 0) {
                 container.innerHTML = '<div class="empty">無結果</div>';
@@ -580,8 +580,8 @@
             const amount = parseInt(document.getElementById(`charge_${userId}`).value);
             if (!amount || amount <= 0) { alert('請輸入數量'); return; }
             
-            const { data } = await supabase.from('users').select('*').eq('id', userId).single();
-            await supabase.from('users').update({ balance: (data.balance || 0) + amount }).eq('id', userId);
+            const { data } = await supabaseClient.from('users').select('*').eq('id', userId).single();
+            await supabaseClient.from('users').update({ balance: (data.balance || 0) + amount }).eq('id', userId);
             alert('充值成功');
             document.getElementById(`charge_${userId}`).value = '';
             loadUsers();
@@ -591,7 +591,7 @@
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         async function logout() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             location.href = 'index.html';
         }
 
