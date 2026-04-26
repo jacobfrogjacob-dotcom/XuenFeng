@@ -489,6 +489,7 @@
             alert('購買成功！感謝您的購買～');
             closeModal('buyModal');
             checkAuth();
+            setTimeout(() => location.reload(), 500);
         }
 
         async function loadOrders() {
