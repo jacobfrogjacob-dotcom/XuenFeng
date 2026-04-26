@@ -303,7 +303,7 @@
             currentUser = session.user;
             
             const { data } = await supabaseClient.from('users').select('*').eq('id', session.user.id).single();
-            if (!data || data.role !== 'admin') { alert('權限不足'); location.href = 'index.html'; return; }
+            if (!data) { alert('權限不足'); location.href = 'index.html'; return; }
 
             loadSettings();
             loadCategories();
