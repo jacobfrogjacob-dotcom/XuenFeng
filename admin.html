@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玄封商店 - 後台管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #1a1a2e; color: #fff; }
+        .header { background: #16213e; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: bold; color: #e94560; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .sidebar { width: 200px; background: #16213e; padding: 20px; border-radius: 10px; position: fixed; top: 70px; left: 20px; }
+        .menu-item { padding: 12px 15px; cursor: pointer; border-radius: 5px; margin-bottom: 5px; }
+        .menu-item:hover, .menu-item.active { background: #0f3460; }
+        .menu-item.active { background: #e94560; }
+        .main { margin-left: 230px; }
+        .card { background: #16213e; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .card h2 { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #0f3460; }
+        .btn { background: #0f3460; border: none; color: #fff; padding: 8px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px; }
+        .btn:hover { background: #e94560; }
+        .btn-primary { background: #e94560; }
+        .btn-danger { background: #e74c3c; }
+        .btn-success { background: #27ae60; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #0f3460; }
+        th { background: #0f3460; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; background: #0f3460; border: 1px solid #333; border-radius: 5px; color: #fff; }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .stat-card { background: #0f3460; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-card .num { font-size: 32px; font-weight: bold; color: #e94560; }
+        .stat-card .label { color: #aaa; margin-top: 5px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: #16213e; padding: 30px; border-radius: 10px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-bar input { flex: 1; }
+        .badge { padding: 3px 8px; border-radius: 3px; font-size: 12px; }
+        .badge-success { background: #27ae60; }
+        .badge-warning { background: #f39c12; }
+        .badge-error { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">玄封商店 - 後台</div>
+        <div class="user-info">
+            <button class="btn" onclick="location.href='index.html'">返回前台</button>
+            <button class="btn btn-danger" onclick="logout()">登出</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="menu-item active" onclick="showTab('dashboard')">📊 儀表板</div>
+            <div class="menu-item" onclick="showTab('settings')">⚙️ 網站設置</div>
+            <div class="menu-item" onclick="showTab('categories')">📁 分類管理</div>
+            <div class="menu-item" onclick="showTab('products')">📦 商品管理</div>
+            <div class="menu-item" onclick="showTab('orders')">📋 訂單管理</div>
+            <div class="menu-item" onclick="showTab('users')">👤 用戶管理</div>
+            <div class="menu-item" onclick="showTab('addBalance')">💰 充值代幣</div>
+        </div>
+
+        <div class="main">
+            <div class="tab-content active" id="dashboard">
+                <div class="grid">
+                    <div class="stat-card">
+                        <div class="num" id="statUsers">0</div>
+                        <div class="label">總用戶</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" id="statProducts">0</div>
+                        <div class="label">總商品</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" id="statOrders">0</div>
+                        <div class="label">總訂單</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="num" id="statRevenue">0</div>
+                        <div class="label">總消費(代幣)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="settings">
+                <div class="card">
+                    <h2>網站設置</h2>
+                    <div class="form-group">
+                        <label>網站名稱</label>
+                        <input type="text" id="siteName">
+                    </div>
+                    <div class="form-group">
+                        <label>網站描述</label>
+                        <input type="text" id="siteDesc">
+                    </div>
+                    <div class="form-group">
+                        <label>LOGO 網址</label>
+                        <input type="text" id="logoUrl">
+                    </div>
+                    <div class="form-group">
+                        <label>BANNER 網址</label>
+                        <input type="text" id="bannerUrl">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">保存設置</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="categories">
+                <div class="card">
+                    <h2>分類管理 <button class="btn btn-primary" onclick="showCategoryModal()">+ 新增分類</button></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>名稱</th>
+                                <th>描述</th>
+                                <th>排序</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="products">
+                <div class="card">
+                    <h2>商品管理 <button class="btn btn-primary" onclick="showProductModal()">+ 新增商品</button></h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>圖片</th>
+                                <th>名稱</th>
+                                <th>分類</th>
+                                <th>價格</th>
+                                <th>庫存</th>
+                                <th>狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="orders">
+                <div class="card">
+                    <h2>訂單管理</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>用戶</th>
+                                <th>商品</th>
+                                <th>狀態</th>
+                                <th>時間</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="users">
+                <div class="card">
+                    <h2>用戶管理</h2>
+                    <div class="search-bar">
+                        <input type="text" id="userSearch" placeholder="搜尋用戶..." oninput="searchUsers()">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用戶名</th>
+                                <th>信箱</th>
+                                <th>餘額</th>
+                                <th>角色</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="addBalance">
+                <div class="card">
+                    <h2>充值代幣</h2>
+                    <div class="form-group">
+                        <label>搜尋用戶</label>
+                        <input type="text" id="searchUser" placeholder="輸入用戶名或信箱..." oninput="searchUserForCharge()">
+                    </div>
+                    <div id="searchResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <h2>分類</h2>
+            <div class="form-group">
+                <label>名稱</label>
+                <input type="text" id="catName">
+            </div>
+            <div class="form-group">
+                <label>描述</label>
+                <textarea id="catDesc"></textarea>
+            </div>
+            <div class="form-group">
+                <label>排序</label>
+                <input type="number" id="catSort" value="0">
+            </div>
+            <input type="hidden" id="catId">
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('categoryModal')">取消</button>
+                <button class="btn btn-danger" id="deleteCatBtn" style="display:none" onclick="deleteCategory()">刪除</button>
+                <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <h2>商品</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>名稱</label>
+                    <input type="text" id="prodName">
+                </div>
+                <div class="form-group">
+                    <label>分類</label>
+                    <select id="prodCat"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>描述</label>
+                <textarea id="prodDesc"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>價格 (代幣)</label>
+                    <input type="number" id="prodPrice">
+                </div>
+                <div class="form-group">
+                    <label>庫存 (-1為無限)</label>
+                    <input type="number" id="prodStock" value="-1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>圖片網址</label>
+                <input type="text" id="prodImg">
+            </div>
+            <div class="form-group">
+                <label>自動發貨內容</label>
+                <textarea id="prodDeliver" placeholder="購買後自動發送的內容"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>自動發貨</label>
+                    <select id="prodAuto">
+                        <option value="0">關閉</option>
+                        <option value="1">開啟</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>顯示</label>
+                    <select id="prodVisible">
+                        <option value="1">顯示</option>
+                        <option value="0">隱藏</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>排序</label>
+                <input type="number" id="prodSort" value="0">
+            </div>
+            <input type="hidden" id="prodId">
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('productModal')">取消</button>
+                <button class="btn btn-danger" id="deleteProdBtn" style="display:none" onclick="deleteProduct()">刪除</button>
+                <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase.js"></script>
+    <script>
+        let currentUser = null;
+        let categories = [];
+        let products = [];
+
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { location.href = 'index.html'; return; }
+            currentUser = session.user;
+            
+            const { data } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+            if (!data || data.role !== 'admin') { alert('權限不足'); location.href = 'index.html'; return; }
+
+            loadSettings();
+            loadCategories();
+            loadProducts();
+            loadOrders();
+            loadUsers();
+            loadStats();
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        }
+
+        async function loadStats() {
+            const { count: users } = await supabase.from('users').select('*', { count: 'exact', head: true });
+            const { count: products } = await supabase.from('products').select('*', { count: 'exact', head: true });
+            const { count: orders } = await supabase.from('orders').select('*', { count: 'exact', head: true });
+            
+            document.getElementById('statUsers').textContent = users;
+            document.getElementById('statProducts').textContent = products;
+            document.getElementById('statOrders').textContent = orders;
+
+            const { data: orderData } = await supabase.from('orders').select('products(price)');
+            const revenue = orderData?.reduce((sum, o) => sum + (o.products?.price || 0), 0) || 0;
+            document.getElementById('statRevenue').textContent = revenue;
+        }
+
+        async function loadSettings() {
+            const { data } = await supabase.from('settings').select('*');
+            data?.forEach(s => {
+                if (s.id === 'site_name') document.getElementById('siteName').value = s.value;
+                if (s.id === 'site_description') document.getElementById('siteDesc').value = s.value;
+                if (s.id === 'logo_url') document.getElementById('logoUrl').value = s.value;
+                if (s.id === 'banner_url') document.getElementById('bannerUrl').value = s.value;
+            });
+        }
+
+        async function saveSettings() {
+            const updates = [
+                { id: 'site_name', value: document.getElementById('siteName').value },
+                { id: 'site_description', value: document.getElementById('siteDesc').value },
+                { id: 'logo_url', value: document.getElementById('logoUrl').value },
+                { id: 'banner_url', value: document.getElementById('bannerUrl').value }
+            ];
+            for (const u of updates) {
+                await supabase.from('settings').upsert(u);
+            }
+            alert('保存成功');
+        }
+
+        async function loadCategories() {
+            const { data } = await supabase.from('categories').select('*').order('sort');
+            categories = data || [];
+            renderCategories();
+            
+            const select = document.getElementById('prodCat');
+            select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        function renderCategories() {
+            const tbody = document.getElementById('categoriesList');
+            tbody.innerHTML = categories.map(c => `
+                <tr>
+                    <td>${c.name}</td>
+                    <td>${c.description || ''}</td>
+                    <td>${c.sort}</td>
+                    <td>
+                        <button class="btn" onclick="editCategory('${c.id}')">編輯</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showCategoryModal(id = null) {
+            document.getElementById('categoryModal').classList.add('show');
+            document.getElementById('deleteCatBtn').style.display = id ? 'block' : 'none';
+            if (id) {
+                const cat = categories.find(c => c.id === id);
+                document.getElementById('catId').value = cat.id;
+                document.getElementById('catName').value = cat.name;
+                document.getElementById('catDesc').value = cat.description || '';
+                document.getElementById('catSort').value = cat.sort;
+            } else {
+                document.getElementById('catId').value = '';
+                document.getElementById('catName').value = '';
+                document.getElementById('catDesc').value = '';
+                document.getElementById('catSort').value = '0';
+            }
+        }
+
+        async function saveCategory() {
+            const id = document.getElementById('catId').value;
+            const data = {
+                name: document.getElementById('catName').value,
+                description: document.getElementById('catDesc').value,
+                sort: parseInt(document.getElementById('catSort').value)
+            };
+            if (id) data.id = id;
+            await supabase.from('categories').upsert(data);
+            closeModal('categoryModal');
+            loadCategories();
+        }
+
+        async function editCategory(id) { showCategoryModal(id); }
+
+        async function deleteCategory() {
+            if (!confirm('確定刪除？')) return;
+            await supabase.from('categories').delete().eq('id', document.getElementById('catId').value);
+            closeModal('categoryModal');
+            loadCategories();
+        }
+
+        async function loadProducts() {
+            const { data } = await supabase.from('products').select('*, categories(name)').order('sort');
+            products = data || [];
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsList');
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td>${p.image_url ? `<img src="${p.image_url}" width="50">` : '-'}</td>
+                    <td>${p.name}</td>
+                    <td>${p.categories?.name || '-'}</td>
+                    <td>${p.price}</td>
+                    <td>${p.stock}</td>
+                    <td><span class="badge ${p.is_visible ? 'badge-success' : 'badge-error'}">${p.is_visible ? '顯示' : '隱藏'}</span></td>
+                    <td>
+                        <button class="btn" onclick="editProduct('${p.id}')">編輯</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showProductModal(id = null) {
+            document.getElementById('productModal').classList.add('show');
+            document.getElementById('deleteProdBtn').style.display = id ? 'block' : 'none';
+            if (id) {
+                const prod = products.find(p => p.id === id);
+                document.getElementById('prodId').value = prod.id;
+                document.getElementById('prodName').value = prod.name;
+                document.getElementById('prodCat').value = prod.category_id || '';
+                document.getElementById('prodDesc').value = prod.description || '';
+                document.getElementById('prodPrice').value = prod.price;
+                document.getElementById('prodStock').value = prod.stock;
+                document.getElementById('prodImg').value = prod.image_url || '';
+                document.getElementById('prodDeliver').value = prod.deliver_content || '';
+                document.getElementById('prodAuto').value = prod.auto_deliver;
+                document.getElementById('prodVisible').value = prod.is_visible;
+                document.getElementById('prodSort').value = prod.sort;
+            } else {
+                document.getElementById('prodId').value = '';
+                document.getElementById('prodName').value = '';
+                document.getElementById('prodDesc').value = '';
+                document.getElementById('prodPrice').value = '0';
+                document.getElementById('prodStock').value = '-1';
+                document.getElementById('prodImg').value = '';
+                document.getElementById('prodDeliver').value = '';
+                document.getElementById('prodAuto').value = '0';
+                document.getElementById('prodVisible').value = '1';
+                document.getElementById('prodSort').value = '0';
+            }
+        }
+
+        async function saveProduct() {
+            const id = document.getElementById('prodId').value;
+            const data = {
+                name: document.getElementById('prodName').value,
+                category_id: document.getElementById('prodCat').value || null,
+                description: document.getElementById('prodDesc').value,
+                price: parseInt(document.getElementById('prodPrice').value),
+                stock: parseInt(document.getElementById('prodStock').value),
+                image_url: document.getElementById('prodImg').value,
+                deliver_content: document.getElementById('prodDeliver').value,
+                auto_deliver: parseInt(document.getElementById('prodAuto').value),
+                is_visible: parseInt(document.getElementById('prodVisible').value),
+                sort: parseInt(document.getElementById('prodSort').value)
+            };
+            if (id) data.id = id;
+            await supabase.from('products').upsert(data);
+            closeModal('productModal');
+            loadProducts();
+        }
+
+        async function editProduct(id) { showProductModal(id); }
+
+        async function deleteProduct() {
+            if (!confirm('確定刪除？')) return;
+            await supabase.from('products').delete().eq('id', document.getElementById('prodId').value);
+            closeModal('productModal');
+            loadProducts();
+        }
+
+        async function loadOrders() {
+            const { data } = await supabase.from('orders').select('*, users(email), products(name)').order('created_at', { ascending: false });
+            const tbody = document.getElementById('ordersList');
+            tbody.innerHTML = data?.map(o => `
+                <tr>
+                    <td>${o.id.slice(0,8)}</td>
+                    <td>${o.users?.email || '-'}</td>
+                    <td>${o.products?.name || '-'}</td>
+                    <td><span class="badge badge-success">${o.status}</span></td>
+                    <td>${new Date(o.created_at).toLocaleString()}</td>
+                </tr>
+            `).join('') || '';
+        }
+
+        async function loadUsers() {
+            const { data } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+            renderUsers(data || []);
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersList');
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.username || '-'}</td>
+                    <td>${u.email}</td>
+                    <td>${u.balance}</td>
+                    <td>${u.role}</td>
+                    <td>
+                        <button class="btn" onclick="editUserBalance('${u.id}')">調整餘額</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function searchUsers() {
+            const q = document.getElementById('userSearch').value.toLowerCase();
+            const { data } = await supabase.from('users').select('*');
+            const filtered = (data || []).filter(u => 
+                u.email.toLowerCase().includes(q) || (u.username || '').toLowerCase().includes(q)
+            );
+            renderUsers(filtered);
+        }
+
+        async function editUserBalance(id) {
+            const { data } = await supabase.from('users').select('*').eq('id', id).single();
+            const newBalance = prompt('輸入新餘額:', data.balance);
+            if (newBalance === null) return;
+            await supabase.from('users').update({ balance: parseInt(newBalance) }).eq('id', id);
+            loadUsers();
+            loadStats();
+        }
+
+        async function searchUserForCharge() {
+            const q = document.getElementById('searchUser').value;
+            if (q.length < 2) { document.getElementById('searchResult').innerHTML = ''; return; }
+            const { data } = await supabase.from('users').select('*').ilike('username', `%${q}%`);
+            const container = document.getElementById('searchResult');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="empty">無結果</div>';
+                return;
+            }
+            container.innerHTML = data.map(u => `
+                <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <div>${u.username || u.email}</div>
+                        <div style="color:#666">餘額: ${u.balance}</div>
+                    </div>
+                    <div style="display:flex;gap:10px">
+                        <input type="number" id="charge_${u.id}" placeholder="數量" style="width:100px">
+                        <button class="btn btn-primary" onclick="chargeBalance('${u.id}')">充值</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function chargeBalance(userId) {
+            const amount = parseInt(document.getElementById(`charge_${userId}`).value);
+            if (!amount || amount <= 0) { alert('請輸入數量'); return; }
+            
+            const { data } = await supabase.from('users').select('*').eq('id', userId).single();
+            await supabase.from('users').update({ balance: (data.balance || 0) + amount }).eq('id', userId);
+            alert('充值成功');
+            document.getElementById(`charge_${userId}`).value = '';
+            loadUsers();
+            loadStats();
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            location.href = 'index.html';
+        }
+
+        init();
+    </script>
+</body>
+</html>

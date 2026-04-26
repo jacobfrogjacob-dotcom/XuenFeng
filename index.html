@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>玄封商店</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #1a1a2e; color: #fff; }
+        .header { background: #16213e; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 24px; font-weight: bold; color: #e94560; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .balance { background: #e94560; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        .btn { background: #0f3460; border: none; color: #fff; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #e94560; }
+        .banner { width: 100%; height: 200px; background: linear-gradient(45deg, #16213e, #0f3460); display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .banner h1 { font-size: 36px; margin-bottom: 10px; }
+        .banner p { color: #aaa; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .categories { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .cat-btn { background: #16213e; border: 1px solid #0f3460; padding: 10px 20px; border-radius: 5px; cursor: pointer; color: #fff; transition: all 0.3s; }
+        .cat-btn:hover, .cat-btn.active { background: #e94560; border-color: #e94560; }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .product-card { background: #16213e; border-radius: 10px; overflow: hidden; transition: transform 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; background: #0f3460; display: flex; align-items: center; justify-content: center; color: #666; }
+        .product-info { padding: 15px; }
+        .product-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .product-desc { color: #aaa; font-size: 14px; margin-bottom: 15px; height: 40px; overflow: hidden; }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; }
+        .price { color: #e94560; font-size: 20px; font-weight: bold; }
+        .buy-btn { background: #e94560; border: none; color: #fff; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
+        .buy-btn:hover { background: #ff6b6b; }
+        .buy-btn:disabled { background: #666; cursor: not-allowed; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: #16213e; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; }
+        .modal h2 { margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #0f3460; border: 1px solid #333; border-radius: 5px; color: #fff; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .orders-list { margin-top: 30px; }
+        .order-item { background: #16213e; padding: 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .order-status { padding: 3px 10px; border-radius: 3px; font-size: 12px; }
+        .order-status.pending { background: #f39c12; }
+        .order-status.completed { background: #27ae60; }
+        .empty { text-align: center; padding: 50px; color: #666; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo" id="siteName">玄封商店</div>
+        <div class="user-info">
+            <span class="balance">玄封幣: <span id="userBalance">0</span></span>
+            <button class="btn" id="loginBtn" onclick="showLogin()">登入</button>
+            <button class="btn" id="registerBtn" onclick="showRegister()">註冊</button>
+            <button class="btn" id="logoutBtn" onclick="logout()" style="display:none">登出</button>
+            <button class="btn" id="ordersBtn" onclick="showOrders()">購買記錄</button>
+        </div>
+    </header>
+
+    <div class="banner">
+        <h1 id="bannerTitle">玄封商店</h1>
+        <p id="bannerDesc">代币商城</p>
+    </div>
+
+    <div class="container">
+        <div class="categories" id="categories"></div>
+        <div class="products" id="products"></div>
+    </div>
+
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>登入</h2>
+            <div class="form-group">
+                <label>信箱</label>
+                <input type="email" id="loginEmail">
+            </div>
+            <div class="form-group">
+                <label>密碼</label>
+                <input type="password" id="loginPassword">
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('loginModal')">取消</button>
+                <button class="btn" style="background:#e94560" onclick="login()">登入</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <h2>註冊</h2>
+            <div class="form-group">
+                <label>信箱</label>
+                <input type="email" id="registerEmail">
+            </div>
+            <div class="form-group">
+                <label>用戶名</label>
+                <input type="text" id="registerUsername">
+            </div>
+            <div class="form-group">
+                <label>密碼</label>
+                <input type="password" id="registerPassword">
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('registerModal')">取消</button>
+                <button class="btn" style="background:#e94560" onclick="register()">註冊</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="buyModal">
+        <div class="modal-content">
+            <h2>購買商品</h2>
+            <div class="form-group">
+                <label>商品名</label>
+                <div id="buyProductName"></div>
+            </div>
+            <div class="form-group">
+                <label>價格</label>
+                <div id="buyProductPrice" style="color:#e94560;font-weight:bold"></div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('buyModal')">取消</button>
+                <button class="btn" style="background:#e94560" onclick="confirmBuy()">確認購買</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="ordersModal">
+        <div class="modal-content">
+            <h2>購買記錄</h2>
+            <div class="orders-list" id="ordersList"></div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('ordersModal')">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase.js"></script>
+    <script>
+        let currentUser = null;
+        let currentCategory = null;
+        let selectedProduct = null;
+
+        async function init() {
+            await loadSettings();
+            await loadCategories();
+            await loadProducts();
+            checkAuth();
+        }
+
+        async function loadSettings() {
+            const { data } = await supabase.from('settings').select('*');
+            if (data) {
+                data.forEach(s => {
+                    if (s.id === 'site_name') document.getElementById('siteName').textContent = s.value;
+                    if (s.id === 'bannerTitle') document.getElementById('bannerTitle').textContent = s.value;
+                    if (s.id === 'site_description') document.getElementById('bannerDesc').textContent = s.value;
+                });
+            }
+        }
+
+        async function loadCategories() {
+            const { data } = await supabase.from('categories').select('*').order('sort');
+            const container = document.getElementById('categories');
+            container.innerHTML = '<button class="cat-btn active" onclick="filterCategory(null)">全部</button>';
+            data?.forEach(cat => {
+                container.innerHTML += `<button class="cat-btn" onclick="filterCategory('${cat.id}')">${cat.name}</button>`;
+            });
+        }
+
+        async function loadProducts(categoryId = null) {
+            let query = supabase.from('products').select('*').eq('is_visible', 1).order('sort');
+            if (categoryId) query = query.eq('category_id', categoryId);
+            const { data } = await query;
+            renderProducts(data || []);
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('products');
+            if (products.length === 0) {
+                container.innerHTML = '<div class="empty">暂无商品</div>';
+                return;
+            }
+            container.innerHTML = products.map(p => `
+                <div class="product-card">
+                    ${p.image_url ? `<img class="product-img" src="${p.image_url}" alt="${p.name}">` : '<div class="product-img">暂无图片</div>'}
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-desc">${p.description || ''}</div>
+                        <div class="product-footer">
+                            <span class="price">${p.price} 玄封幣</span>
+                            <button class="buy-btn" onclick="buyProduct('${p.id}')">購買</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(id) {
+            currentCategory = id;
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadProducts(id);
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                const { data } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+                if (data) {
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.getElementById('registerBtn').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'block';
+                    document.getElementById('userBalance').textContent = data.balance || 0;
+                }
+            }
+        }
+
+        function showLogin() { document.getElementById('loginModal').classList.add('show'); }
+        function showRegister() { document.getElementById('registerModal').classList.add('show'); }
+        function showOrders() { 
+            if (!currentUser) { alert('請先登入'); return; }
+            loadOrders();
+            document.getElementById('ordersModal').classList.add('show');
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) { alert(error.message); return; }
+            closeModal('loginModal');
+            checkAuth();
+        }
+
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const { error } = await supabase.auth.signUp({ 
+                email, password, options: { data: { username } } 
+            });
+            if (error) { alert(error.message); return; }
+            alert('註冊成功，請前往信箱驗證');
+            closeModal('registerModal');
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
+        async function buyProduct(id) {
+            if (!currentUser) { alert('請先登入'); showLogin(); return; }
+            const { data } = await supabase.from('products').select('*').eq('id', id).single();
+            selectedProduct = data;
+            document.getElementById('buyProductName').textContent = data.name;
+            document.getElementById('buyProductPrice').textContent = data.price + ' 玄封幣';
+            document.getElementById('buyModal').classList.add('show');
+        }
+
+        async function confirmBuy() {
+            const price = selectedProduct.price;
+            const { data: user } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
+            
+            if (user.balance < price) {
+                alert('餘額不足');
+                return;
+            }
+
+            await supabase.from('users').update({ balance: user.balance - price }).eq('id', currentUser.id);
+
+            const { error } = await supabase.from('orders').insert({
+                user_id: currentUser.id,
+                product_id: selectedProduct.id,
+                status: 'completed'
+            });
+
+            if (error) { alert(error.message); return; }
+
+            alert('購買成功！');
+            closeModal('buyModal');
+            checkAuth();
+        }
+
+        async function loadOrders() {
+            const { data } = await supabase.from('orders').select('*, products(name)').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            const container = document.getElementById('ordersList');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="empty">暂无购买记录</div>';
+                return;
+            }
+            container.innerHTML = data.map(o => `
+                <div class="order-item">
+                    <span>${o.products?.name || '商品'}</span>
+                    <span class="order-status ${o.status}">${o.status === 'completed' ? '已完成' : '待處理'}</span>
+                </div>
+            `).join('');
+        }
+
+        init();
+    </script>
+</body>
+</html>
