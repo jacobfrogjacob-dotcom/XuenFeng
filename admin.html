@@ -224,6 +224,12 @@
             ];
             for (const u of updates) { await supabaseClient.from('settings').upsert(u); }
             alert('保存成功');
+            loadSettings();
+            loadCategories();
+            loadProducts();
+            loadOrders();
+            loadUsers();
+            loadStats();
         }
 
         async function loadCategories() {
