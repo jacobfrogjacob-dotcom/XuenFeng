@@ -100,9 +100,9 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://chjuzpbocdkdiyuuziye.supabase.co';
+        const SUPABASE_URL = 'https://chjuzpbocdkdiyuuziye.db.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        var db = window.db.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let user = null;
         let coins = { xf: 0, df: 0, lastClaim: null };
@@ -130,7 +130,7 @@
 
         async function checkLogin() {
             try {
-                const { data } = await supabase.auth.getSession();
+                const { data } = await db.auth.getSession();
                 if (data.session) {
                     user = data.session.user;
                     document.getElementById('loginBtn').style.display = 'none';
@@ -140,13 +140,13 @@
             } catch(e) {}
         }
 
-        function showLogin() { window.open('https://chjuzpbocdkdiyuuziye.supabase.co/auth/v1/verify?redirectTo=' + encodeURIComponent(location.href)); }
-        function logout() { supabase.auth.signOut().then(() => location.reload()); }
+        function showLogin() { window.open('https://chjuzpbocdkdiyuuziye.db.co/auth/v1/verify?redirectTo=' + encodeURIComponent(location.href)); }
+        function logout() { db.auth.signOut().then(() => location.reload()); }
         function showProfile() { alert('玄封幣: ' + coins.xf + '\n巔峰幣: ' + coins.df); }
 
         async function loadProducts() {
             try {
-                const { data } = await supabase.from('products').select('*').eq('is_visible', 1).order('sort');
+                const { data } = await db.from('products').select('*').eq('is_visible', 1).order('sort');
                 document.getElementById('products').innerHTML = (data || []).map(p => `
                     <div class="product">
                         <div class="product-img">${p.image_url ? `<img src="${p.image_url}">` : '暫無圖片'}</div>
@@ -164,11 +164,11 @@
 
         async function buy(id) {
             if (!user) { showLogin(); return; }
-            const { data } = await supabase.from('products').select('*').eq('id', id).single();
+            const { data } = await db.from('products').select('*').eq('id', id).single();
             if (coins.xf < data.price) { alert('餘額不足！'); return; }
             coins.xf -= data.price;
             saveCoins();
-            await supabase.from('orders').insert({ user_id: user.id, product_id: id, status: 'completed' });
+            await db.from('orders').insert({ user_id: user.id, product_id: id, status: 'completed' });
             alert('購買成功！');
         }
 
