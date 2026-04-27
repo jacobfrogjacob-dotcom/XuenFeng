@@ -17,8 +17,7 @@
         .coin.df { background: #e8daef; }
         .btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .btn:hover { background: #2980b9; }
-        .daily-btn { background: #f39c12; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .daily-btn { background: #f39c12; }
         .banner { background: linear-gradient(135deg, #3498db, #2980b9); padding: 50px 20px; text-align: center; color: #fff; }
         .banner h1 { font-size: 28px; }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
@@ -27,195 +26,101 @@
         .tab.active { background: #3498db; color: #fff; border-color: #3498db; }
         .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
         .product { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .product:hover { transform: translateY(-3px); }
-        .product-img { width: 100%; height: 150px; background: #f9f9f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden; }
-        .product-img img { width: 100%; height: 100%; object-fit: cover; }
+        .product-img { width: 100%; height: 150px; background: #f9f9f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
         .product-name { font-weight: bold; margin-bottom: 5px; }
         .product-price { color: #3498db; font-size: 18px; font-weight: bold; }
-        .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        
-        @media (max-width: 768px) {
-            .header { flex-wrap: wrap; gap: 10px; justify-content: center; }
-            .coin-box { flex-wrap: wrap; justify-content: center; }
-            .products { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="logo">🏪 玄封商店</div>
         <div class="user-info">
-            <div class="coin-box">
-                <div class="coin"><img src="玄封幣.png"> <span id="xf">0</span></div>
-                <div class="coin df"><img src="巔峰幣.png"> <span id="df">0</span></div>
-            </div>
-            <button class="btn daily-btn" id="dailyBtn" onclick="claimDaily()">📩</button>
-            <button class="btn" id="loginBtn" onclick="showLogin()">登入</button>
-            <button class="btn" id="userBtn" onclick="showProfile()" style="display:none">👤</button>
-            <button class="btn" id="logoutBtn" onclick="logout()" style="display:none">登出</button>
+            <div class="coin"><img src="玄封幣.png"> <span id="xf">0</span></div>
+            <div class="coin df"><img src="巔峰幣.png"> <span id="df">0</span></div>
+            <button class="btn daily-btn" onclick="claimDaily()">📩</button>
+            <button class="btn" onclick="showLogin()">登入</button>
         </div>
     </header>
-
     <div class="banner">
         <h1>玄封商店</h1>
-        <p>安全快捷的代幣商城</p>
     </div>
-
     <div class="container">
         <div class="tabs">
-            <div class="tab active" onclick="showTab('shop', this)">🛒 商店</div>
-            <div class="tab" onclick="showTab('exchange', this)">🔄 兌換</div>
-            <div class="tab" onclick="showTab('luck', this)">🎁 抽獎</div>
-            <div class="tab" onclick="showTab('claim', this)">📩 每日</div>
+            <div class="tab active" onclick="showTab('shop', this)">商店</div>
+            <div class="tab" onclick="showTab('exchange', this)">兌換</div>
+            <div class="tab" onclick="showTab('claim', this)">每日</div>
         </div>
-
-        <div id="shopTab">
-            <div class="products" id="products"></div>
+        <div id="shopContent"><div class="products" id="products"></div></div>
+        <div id="exchangeContent" style="display:none">
+            <input type="number" id="exchangeAmount" value="100" style="width:100px;padding:8px">
+            <button class="btn" onclick="doExchange()">兌換</button>
         </div>
-
-        <div id="exchangeTab" style="display:none">
-            <div class="product" style="max-width: 400px; margin: 0 auto;">
-                <h3 style="margin-bottom:15px">🔄 巔峰幣兌換</h3>
-                <p style="color:#888;margin-bottom:15px">100 玄封幣 = 1 巔峰幣</p>
-                <input type="number" id="exchangeAmount" value="100" style="width:100%;padding:10px;margin-bottom:10px">
-                <button class="btn" onclick="doExchange()">兌換</button>
-            </div>
-        </div>
-
-        <div id="luckTab" style="display:none">
-            <div style="text-align:center">
-                <div style="font-size:60px;cursor:pointer" onclick="doLucky()">🎁</div>
-                <p style="margin:15px 0">花費 10 玄封幣</p>
-                <div id="luckResult"></div>
-            </div>
-        </div>
-
-        <div id="claimTab" style="display:none">
-            <div style="text-align:center">
-                <h2>每日簽到領取代幣</h2>
-                <p style="margin:20px 0;color:#888">連續簽到獲得更多獎勵！</p>
-                <button class="btn" style="font-size:18px;padding:15px 40px" onclick="claimDaily()">📩 立即領取 50 玄封幣</button>
-            </div>
+        <div id="claimContent" style="display:none">
+            <button class="btn" onclick="claimDaily()">領取 50 代幣</button>
         </div>
     </div>
-
     <script>
-        const SUPABASE_URL = 'https://chjuzpbocdkdiyuuziye.db.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI';
-        var db = window.db.createClient(SUPABASE_URL, SUPABASE_KEY);
+        var db = window.supabase.createClient('https://chjuzpbocdkdiyuuziye.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI');
 
-        let user = null;
-        let coins = { xf: 0, df: 0, lastClaim: null };
-
+        var coins = { xf: 0, df: 0 };
+        
         function init() {
-            loadCoins();
+            var saved = localStorage.getItem('coins');
+            if (saved) { coins = JSON.parse(saved); }
+            document.getElementById('xf').innerText = coins.xf;
+            document.getElementById('df').innerText = coins.df;
             loadProducts();
-            checkLogin();
         }
 
-        function loadCoins() {
-            const saved = localStorage.getItem('shop_coins');
-            if (saved) {
-                coins = JSON.parse(saved);
-                document.getElementById('xf').textContent = coins.xf;
-                document.getElementById('df').textContent = coins.df;
-            }
-        }
-
-        function saveCoins() {
-            localStorage.setItem('shop_coins', JSON.stringify(coins));
-            document.getElementById('xf').textContent = coins.xf;
-            document.getElementById('df').textContent = coins.df;
-        }
-
-        async function checkLogin() {
-            try {
-                const { data } = await db.auth.getSession();
-                if (data.session) {
-                    user = data.session.user;
-                    document.getElementById('loginBtn').style.display = 'none';
-                    document.getElementById('userBtn').style.display = 'block';
-                    document.getElementById('logoutBtn').style.display = 'block';
-                }
-            } catch(e) {}
-        }
-
-        function showLogin() { window.open('https://chjuzpbocdkdiyuuziye.db.co/auth/v1/verify?redirectTo=' + encodeURIComponent(location.href)); }
-        function logout() { db.auth.signOut().then(() => location.reload()); }
-        function showProfile() { alert('玄封幣: ' + coins.xf + '\n巔峰幣: ' + coins.df); }
-
-async function loadProducts() {
-            try {
-                const { data, error } = await db.from('products').select('*').eq('is_visible', 1).order('sort');
-                console.log('products:', data, 'error:', error);
-                document.getElementById('products').innerHTML = (data || []).map(p => `
-                    <div class="product">
-                        <div class="product-img">${p.image_url ? `<img src="${p.image_url}">` : '暫無圖片'}</div>
-                        <div class="product-name">${p.name}</div>
-                        <div class="product-price">${p.price} 代幣</div>
-                        <div class="product-footer">
-                            <button class="btn" onclick="buy('${p.id}')">購買</button>
-                        </div>
-                    </div>
-                `).join('') || '<p style="text-align:center;color:#999;padding:40px">暫無商品 - 請到後台新增</p>';
-            } catch(e) {
-                console.log('loadProducts error:', e);
-                document.getElementById('products').innerHTML = '<p style="text-align:center;color:red;padding:40px">載入失敗: ' + e.message + '</p>';
-            }
-        }
-        }
-
-        async function buy(id) {
-            if (!user) { showLogin(); return; }
-            const { data } = await db.from('products').select('*').eq('id', id).single();
-            if (coins.xf < data.price) { alert('餘額不足！'); return; }
-            coins.xf -= data.price;
-            saveCoins();
-            await db.from('orders').insert({ user_id: user.id, product_id: id, status: 'completed' });
-            alert('購買成功！');
-        }
-
-        function claimDaily() {
-            if (!user) { showLogin(); return; }
-            const today = new Date().toDateString();
-            if (coins.lastClaim === today) { alert('今日已領取！'); return; }
-            coins.xf += 50;
-            coins.lastClaim = today;
-            saveCoins();
-            alert('領取成功！獲得 50 玄封幣');
-        }
-
-        function doExchange() {
-            if (!user) { showLogin(); return; }
-            const amount = parseInt(document.getElementById('exchangeAmount').value) || 0;
-            const cost = amount * 100;
-            if (coins.xf < cost) { alert('玄封幣不足！'); return; }
-            coins.xf -= cost;
-            coins.df += amount;
-            saveCoins();
-            alert('兌換成功！獲得 ' + amount + ' 巔峰幣');
-        }
-
-        function doLucky() {
-            if (!user) { showLogin(); return; }
-            if (coins.xf < 10) { alert('玄封幣不足！'); return; }
-            coins.xf -= 10;
-            const prizes = [5, 10, 20, 50, 1];
-            const prize = prizes[Math.floor(Math.random() * prizes.length)];
-            const name = prize > 1 ? prize + ' 玄封幣' : '1 巔峰幣';
-            if (prize > 1) coins.xf += prize;
-            else coins.df += 1;
-            saveCoins();
-            document.getElementById('luckResult').innerHTML = '<h2 style="color:#3498db">🎉 獲得 ' + name + '</h2>';
+        function save() {
+            localStorage.setItem('coins', JSON.stringify(coins));
+            document.getElementById('xf').innerText = coins.xf;
+            document.getElementById('df').innerText = coins.df;
         }
 
         function showTab(tab, el) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
             el.classList.add('active');
-            document.getElementById('shopTab').style.display = tab === 'shop' ? 'block' : 'none';
-            document.getElementById('exchangeTab').style.display = tab === 'exchange' ? 'block' : 'none';
-            document.getElementById('luckTab').style.display = tab === 'luck' ? 'block' : 'none';
-            document.getElementById('claimTab').style.display = tab === 'claim' ? 'block' : 'none';
+            document.getElementById('shopContent').style.display = tab === 'shop' ? 'block' : 'none';
+            document.getElementById('exchangeContent').style.display = tab === 'exchange' ? 'block' : 'none';
+            document.getElementById('claimContent').style.display = tab === 'claim' ? 'block' : 'none';
+        }
+
+        function showLogin() {
+            alert('請前往後台登入');
+        }
+
+        function claimDaily() {
+            coins.xf += 50;
+            save();
+            alert('獲得 50 玄封幣');
+        }
+
+        function doExchange() {
+            var amount = parseInt(document.getElementById('exchangeAmount').value) || 0;
+            var cost = amount * 100;
+            if (coins.xf < cost) { alert('不足'); return; }
+            coins.xf -= cost;
+            coins.df += amount;
+            save();
+            alert('兌換成功');
+        }
+
+        async function loadProducts() {
+            try {
+                var result = await db.from('products').select('*').eq('is_visible', 1).order('sort');
+                var html = '';
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach(function(p) {
+                        html += '<div class="product"><div class="product-name">' + p.name + '</div><div class="product-price">' + p.price + ' 代幣</div></div>';
+                    });
+                } else {
+                    html = '<p>暫無商品</p>';
+                }
+                document.getElementById('products').innerHTML = html;
+            } catch(e) {
+                document.getElementById('products').innerHTML = '<p>載入失敗: ' + e.message + '</p>';
+            }
         }
 
         init();
