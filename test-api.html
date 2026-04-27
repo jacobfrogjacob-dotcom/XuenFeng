@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>API 測試</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>API 連接測試</h1>
+    <pre id="result" style="background:#f5f5f5;padding:20px;white-space:pre-wrap"></pre>
+    
+    <script>
+        document.getElementById('result').innerText = '開始測試...\n';
+        
+        // 使用 service_role key
+        var url = 'https://chjuzpbocdkdiyuuziye.supabase.co';
+        var key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI';
+        
+        var client = window.supabase.createClient(url, key);
+        
+        // 測試讀取
+        client.from('products').select('name').limit(1)
+        .then(function(r) {
+            if (r.error) {
+                document.getElementById('result').innerText += 'products 讀取錯誤: ' + JSON.stringify(r.error) + '\n';
+            } else {
+                document.getElementById('result').innerText += 'products 讀取成功! data: ' + JSON.stringify(r.data) + '\n';
+            }
+        })
+        .catch(function(e) {
+            document.getElementById('result').innerText += 'products 異常: ' + e.message + '\n';
+        });
+        
+        // 測試寫入
+        client.from('products').insert({ name: '測試商品' + Date.now(), price: 100, stock: 10, is_visible: 1 })
+        .then(function(r) {
+            if (r.error) {
+                document.getElementById('result').innerText += 'products 新增錯誤: ' + JSON.stringify(r.error) + '\n';
+            } else {
+                document.getElementById('result').innerText += 'products 新增成功! data: ' + JSON.stringify(r.data) + '\n';
+            }
+        })
+        .catch(function(e) {
+            document.getElementById('result').innerText += 'products 新增異常: ' + e.message + '\n';
+        });
+    </script>
+</body>
+</html>

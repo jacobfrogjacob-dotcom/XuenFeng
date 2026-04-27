@@ -2,77 +2,175 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>玄封商店 - 後台</title>
+    <title>玄封商店 - 後台管理</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial; background: #f5f5f5; margin: 0; padding: 20px; }
-        h2 { color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-        .btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px; }
-        table { width: 100%; background: white; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        * { margin: 0; padding: 0; }
+        body { font-family: "Microsoft YaHei", Arial; background: #f0f4f8; }
+        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo { font-size: 20px; font-weight: bold; color: #3498db; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 20px; }
+        .btn { background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; }
+        .btn:hover { background: #2980b9; }
+        .card { background: white; padding: 25px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f9f9f9; color: #666; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 200px; }
     </style>
 </head>
 <body>
-    <h2>📊 統計 <button class="btn" onclick="init()">刷新</button></h2>
-    <div style="display:flex;gap:20px;margin:20px 0">
-        <div style="background:white;padding:20px;border-radius:8px;text-align:center;flex:1"><b id="u" style="font-size:30px;color:#3498db">0</b><br>用戶</div>
-        <div style="background:white;padding:20px;border-radius:8px;text-align:center;flex:1"><b id="p" style="font-size:30px;color:#3498db">0</b><br>商品</div>
-        <div style="background:white;padding:20px;border-radius:8px;text-align:center;flex:1"><b id="o" style="font-size:30px;color:#3498db">0</b><br>訂單</div>
+    <header class="header">
+        <div class="logo">⚙️ 玄封商店 - 後台管理</div>
+        <div>
+            <button class="btn" onclick="location.href='index.html'">前台</button>
+            <button class="btn" onclick="init()">刷新</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>📊 統計數據</h2>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+                <div style="text-align:center;padding:20px;background:#f9f9f9;border-radius:8px">
+                    <div id="statUsers" style="font-size:40px;color:#3498db;font-weight:bold">0</div>
+                    <div style="color:#888">用戶總數</div>
+                </div>
+                <div style="text-align:center;padding:20px;background:#f9f9f9;border-radius:8px">
+                    <div id="statProducts" style="font-size:40px;color:#3498db;font-weight:bold">0</div>
+                    <div style="color:#888">商品總數</div>
+                </div>
+                <div style="text-align:center;padding:20px;background:#f9f9f9;border-radius:8px">
+                    <div id="statOrders" style="font-size:40px;color:#3498db;font-weight:bold">0</div>
+                    <div style="color:#888">訂單總數</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 商品管理 <button class="btn" onclick="addProduct()">+ 新增商品</button></h2>
+            <table>
+                <thead><tr><th>商品名稱</th><th>價格</th><th>庫存</th><th>操作</th></tr></thead>
+                <tbody id="productsList"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>👤 用戶管理</h2>
+            <table>
+                <thead><tr><th>用戶名</th><th>信箱</th><th>玄封幣</th><th>操作</th></tr></thead>
+                <tbody id="usersList"></tbody>
+            </table>
+        </div>
     </div>
-    
-    <h2>📦 商品 <button class="btn" onclick="addP()">+新增</button></h2>
-    <table id="plist"><tr><th>名稱</th><th>價格</th><th>庫存</th></tr></table>
-    
-    <h2>👤 用戶 <button class="btn" onclick="init()">刷新</button></h2>
-    <table id="ulist"><tr><th>用戶名</th><th>玄封幣</th><th>操作</th></tr></table>
 
     <script>
+        // Supabase 連接
         var db = window.supabase.createClient('https://chjuzpbocdkdiyuuziye.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI');
 
+        // 初始化
         async function init() {
+            await loadStats();
+            await loadProducts();
+            await loadUsers();
+        }
+
+        // 統計
+        async function loadStats() {
             try {
                 var ur = await db.from('users').select('id', { count: 'exact', head: true });
                 var pr = await db.from('products').select('id', { count: 'exact', head: true });
                 var or = await db.from('orders').select('id', { count: 'exact', head: true });
-                document.getElementById('u').innerText = ur.count || 0;
-                document.getElementById('p').innerText = pr.count || 0;
-                document.getElementById('o').innerText = or.count || 0;
-            } catch(e) { console.log(e); }
-
-            var pl = await db.from('products').select('name,price,stock').order('created_at', { ascending: false });
-            var ph = '';
-            (pl.data || []).forEach(function(x) {
-                ph += '<tr><td>' + x.name + '</td><td>' + x.price + '</td><td>' + x.stock + '</td></tr>';
-            });
-            document.getElementById('plist').innerHTML = ph || '<tr><td>無</td></tr>';
-
-            var ul = await db.from('users').select('username,xuanfeng_coin,id').order('created_at', { ascending: false });
-            var uh = '';
-            (ul.data || []).forEach(function(x) {
-                uh += '<tr><td>' + (x.username || '-') + '</td><td>' + (x.xuanfeng_coin || 0) + '</td><td><button class="btn" style="padding:5px 10px" onclick="editU(\'' + x.id + '\',' + (x.xuanfeng_coin||0) + ')">調整</button></td></tr>';
-            });
-            document.getElementById('ulist').innerHTML = uh || '<tr><td>無</td></tr>';
+                document.getElementById('statUsers').innerText = ur.count || 0;
+                document.getElementById('statProducts').innerText = pr.count || 0;
+                document.getElementById('statOrders').innerText = or.count || 0;
+            } catch(e) {
+                console.log('Stats error:', e);
+            }
         }
 
-        async function addP() {
-            var name = prompt('商品名:');
+        // 商品列表
+        async function loadProducts() {
+            try {
+                var result = await db.from('products').select('name,price,stock,id').order('created_at', { ascending: false });
+                var html = '';
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach(function(p) {
+                        html += '<tr><td>' + p.name + '</td><td>' + p.price + '</td><td>' + p.stock + '</td><td><button class="btn" style="padding:5px 10px" onclick="editProduct(\'' + p.id + '\', \'' + p.name + '\', ' + p.price + ', ' + p.stock + ')">編輯</button></td></tr>';
+                    });
+                } else {
+                    html = '<tr><td colspan="4" style="text-align:center;color:#999">暫無商品</td></tr>';
+                }
+                document.getElementById('productsList').innerHTML = html;
+            } catch(e) {
+                document.getElementById('productsList').innerHTML = '<tr><td colspan="4" style="color:red">錯誤: ' + e.message + '</td></tr>';
+            }
+        }
+
+        // 用戶列表
+        async function loadUsers() {
+            try {
+                var result = await db.from('users').select('username,email,xuanfeng_coin,id').order('created_at', { ascending: false });
+                var html = '';
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach(function(u) {
+                        html += '<tr><td>' + (u.username || '-') + '</td><td>' + (u.email || '-') + '</td><td>' + (u.xuanfeng_coin || 0) + '</td><td><button class="btn" style="padding:5px 10px" onclick="editUser(\'' + u.id + '\', ' + (u.xuanfeng_coin||0) + ')">調整</button></td></tr>';
+                    });
+                } else {
+                    html = '<tr><td colspan="4" style="text-align:center;color:#999">暫無用戶</td></tr>';
+                }
+                document.getElementById('usersList').innerHTML = html;
+            } catch(e) {
+                document.getElementById('usersList').innerHTML = '<tr><td colspan="4" style="color:red">錯誤: ' + e.message + '</td></tr>';
+            }
+        }
+
+        // 新增商品
+        async function addProduct() {
+            var name = prompt('商品名稱:');
             var price = prompt('價格:');
-            var stock = prompt('庫存(-1無限):', '-1');
+            var stock = prompt('庫存 (-1為無限):', '-1');
             if (name && price) {
-                await db.from('products').insert({ name: name, price: parseInt(price), stock: parseInt(stock)||-1, is_visible: 1 });
-                init();
+                try {
+                    await db.from('products').insert({ name: name, price: parseInt(price), stock: parseInt(stock) || -1, is_visible: 1 });
+                    init();
+                    alert('新增成功！');
+                } catch(e) {
+                    alert('錯誤: ' + e.message);
+                }
             }
         }
 
-        async function editU(id, coin) {
-            var c = prompt('玄封幣:', coin);
-            if (c !== null) {
-                await db.from('users').update({ xuanfeng_coin: parseInt(c)||0 }).eq('id', id);
-                init();
+        // 編輯商品
+        async function editProduct(id, name, price, stock) {
+            var newName = prompt('商品名稱:', name);
+            var newPrice = prompt('價格:', price);
+            var newStock = prompt('庫存:', stock);
+            if (newName) {
+                try {
+                    await db.from('products').update({ name: newName, price: parseInt(newPrice), stock: parseInt(newStock) }).eq('id', id);
+                    init();
+                } catch(e) {
+                    alert('錯誤: ' + e.message);
+                }
             }
         }
 
+        // 調整用戶代幣
+        async function editUser(id, coin) {
+            var newCoin = prompt('玄封幣:', coin);
+            if (newCoin !== null) {
+                try {
+                    await db.from('users').update({ xuanfeng_coin: parseInt(newCoin) }).eq('id', id);
+                    init();
+                } catch(e) {
+                    alert('錯誤: ' + e.message);
+                }
+            }
+        }
+
+        // 啟動
         init();
     </script>
 </body>
