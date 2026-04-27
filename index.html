@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歡樂農場 - 代幣商城</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; min-height: 100vh; }
+        
+        .header { background: rgba(22, 33, 62, 0.95); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(233, 69, 96, 0.3); }
+        .logo { font-size: 24px; font-weight: bold; color: #e94560; text-shadow: 0 0 10px rgba(233, 69, 96, 0.5); }
+        .logo span { color: #ffd700; }
+        
+        .user-info { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: flex-end; }
+        .coin-display { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 25px; }
+        .coin-icon { width: 28px; height: 28px; border-radius: 50%; }
+        .xuan-coin { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .dian-coin { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .coin-amount { font-weight: bold; font-size: 16px; }
+        
+        .btn { background: #0f3460; border: none; color: #fff; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
+        .btn:hover { background: #e94560; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4); }
+        .btn-primary { background: linear-gradient(135deg, #e94560, #ff6b6b); }
+        .btn-gold { background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1a2e; font-weight: bold; }
+        
+        .banner { width: 100%; height: 180px; background: linear-gradient(45deg, #16213e, #0f3460, #1a1a2e); display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative; overflow: hidden; }
+        .banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat; background-size: 30px 30px; animation: float 20s linear infinite; }
+        @keyframes float { from { transform: translateY(0); } to { transform: translateY(30px); } }
+        .banner h1 { font-size: 42px; margin-bottom: 10px; position: relative; z-index: 1; text-shadow: 0 0 20px rgba(233, 69, 96, 0.5); }
+        .banner p { color: #aaa; position: relative; z-index: 1; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-btn { background: rgba(22, 33, 62, 0.8); border: 2px solid #0f3460; padding: 12px 25px; border-radius: 25px; cursor: pointer; color: #fff; transition: all 0.3s; font-size: 16px; }
+        .tab-btn:hover, .tab-btn.active { background: #e94560; border-color: #e94560; transform: scale(1.05); }
+        
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .daily-card { background: linear-gradient(135deg, #16213e, #0f3460); border-radius: 20px; padding: 40px; text-align: center; max-width: 400px; margin: 0 auto; border: 2px solid #e94560; }
+        .daily-title { font-size: 28px; margin-bottom: 20px; color: #e94560; }
+        .daily-reward { font-size: 48px; margin: 30px 0; }
+        .daily-status { color: #aaa; margin-bottom: 20px; }
+        .daily-btn { padding: 15px 40px; font-size: 18px; }
+        .claimed { background: #27ae60 !important; cursor: default; }
+        
+        .exchange-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .exchange-card { background: linear-gradient(135deg, #16213e, #0f3460); border-radius: 15px; padding: 25px; text-align: center; border: 2px solid #764ba2; }
+        .exchange-card.gold { border-color: #ffd700; }
+        .exchange-icon { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; }
+        .exchange-name { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .exchange-rate { color: #aaa; margin-bottom: 15px; }
+        .exchange-btn { width: 100%; padding: 12px; font-size: 16px; }
+        
+        .lottery-section { max-width: 500px; margin: 0 auto; }
+        .lottery-card { background: linear-gradient(135deg, #16213e, #0f3460); border-radius: 20px; padding: 40px; text-align: center; border: 2px solid #ffd700; }
+        .lottery-title { font-size: 28px; margin-bottom: 10px; color: #ffd700; }
+        .lottery-cost { color: #aaa; margin-bottom: 30px; }
+        .lottery-box { width: 150px; height: 150px; margin: 30px auto; background: linear-gradient(135deg, #1a1a2e, #0f3460); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 60px; cursor: pointer; border: 3px solid #ffd700; transition: all 0.3s; }
+        .lottery-box:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+        .lottery-box.spin { animation: spin 0.5s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .lottery-result { margin-top: 20px; padding: 20px; border-radius: 10px; display: none; }
+        .lottery-result.show { display: block; animation: fadeIn 0.5s; }
+        .lottery-result.win { background: rgba(39, 174, 96, 0.3); border: 2px solid #27ae60; }
+        .lottery-result.lose { background: rgba(231, 76, 60, 0.3); border: 2px solid #e74c3c; }
+        
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .product-card { background: linear-gradient(135deg, #16213e, #0f3460); border-radius: 15px; overflow: hidden; transition: all 0.3s; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+        .product-img { width: 100%; height: 180px; object-fit: cover; background: #0f3460; display: flex; align-items: center; justify-content: center; font-size: 50px; }
+        .product-info { padding: 20px; }
+        .product-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .product-desc { color: #aaa; font-size: 14px; margin-bottom: 15px; min-height: 40px; }
+        .product-footer { display: flex; justify-content: space-between; align-items: center; }
+        .price { color: #e94560; font-size: 20px; font-weight: bold; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: #16213e; padding: 30px; border-radius: 20px; max-width: 450px; width: 90%; animation: slideIn 0.3s; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal h2 { margin-bottom: 20px; color: #e94560; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #aaa; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; background: #0f3460; border: 2px solid #333; border-radius: 10px; color: #fff; font-size: 16px; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #e94560; outline: none; }
+        .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        
+        .admin-panel { display: none; }
+        .admin-panel.active { display: block; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: linear-gradient(135deg, #16213e, #0f3460); padding: 25px; border-radius: 15px; text-align: center; border: 2px solid #e94560; }
+        .stat-value { font-size: 36px; font-weight: bold; color: #e94560; }
+        .stat-label { color: #aaa; margin-top: 10px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid #333; }
+        .data-table th { background: #0f3460; color: #e94560; }
+        .data-table tr:hover { background: rgba(233, 69, 96, 0.1); }
+        
+        .orders-list { margin-top: 20px; }
+        .order-item { background: #0f3460; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .order-status { padding: 5px 15px; border-radius: 20px; font-size: 12px; }
+        .order-status.pending { background: #f39c12; }
+        .order-status.completed { background: #27ae60; }
+        
+        .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #16213e; padding: 20px 40px; border-radius: 15px; z-index: 2000; display: none; border: 2px solid #e94560; font-size: 18px; }
+        .toast.show { display: block; animation: fadeIn 0.3s; }
+        .toast.success { border-color: #27ae60; color: #27ae60; }
+        .toast.error { border-color: #e74c3c; color: #e74c3c; }
+        
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .logo { font-size: 18px; }
+            .coin-display { padding: 5px 10px; }
+            .banner h1 { font-size: 28px; }
+            .user-info { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">歡樂<span>農場</span> 代幣商城</div>
+        <div class="user-info" id="userInfo">
+            <div class="coin-display">
+                <div class="coin-icon xuan-coin"></div>
+                <span class="coin-amount" id="xuanBalance">0</span>
+            </div>
+            <div class="coin-display">
+                <div class="coin-icon dian-coin"></div>
+                <span class="coin-amount" id="dianBalance">0</span>
+            </div>
+            <button class="btn" onclick="showLogin()">登入</button>
+            <button class="btn" id="adminBtn" onclick="showAdmin()" style="display:none">管理</button>
+            <button class="btn" id="logoutBtn" onclick="logout()" style="display:none">登出</button>
+        </div>
+    </header>
+
+    <div class="banner">
+        <h1>歡樂農場</h1>
+        <p>每日簽到抽獎兌換好禮</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs" id="mainTabs">
+            <button class="tab-btn active" data-tab="daily" onclick="switchTab('daily')">每日簽到</button>
+            <button class="tab-btn" data-tab="exchange" onclick="switchTab('exchange')">兌換中心</button>
+            <button class="tab-btn" data-tab="lottery" onclick="switchTab('lottery')">幸運抽獎</button>
+            <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')">商品商店</button>
+        </div>
+
+        <div id="dailyPanel" class="panel active">
+            <div class="daily-card">
+                <div class="daily-title">每日簽到</div>
+                <div class="daily-reward">🎁</div>
+                <div class="daily-status" id="dailyStatus">今天還沒簽到喔！</div>
+                <button class="btn btn-primary daily-btn" id="dailyBtn" onclick="dailyCheckIn()">簽到領取 10 玄封幣</button>
+            </div>
+        </div>
+
+        <div id="exchangePanel" class="panel">
+            <div class="exchange-section">
+                <div class="exchange-card">
+                    <div class="exchange-icon dian-coin"></div>
+                    <div class="exchange-name">巔峰幣</div>
+                    <div class="exchange-rate">100 玄封幣 = 1 巔峰幣</div>
+                    <button class="btn btn-gold exchange-btn" onclick="exchangeToDian()">兌換</button>
+                </div>
+                <div class="exchange-card">
+                    <div class="exchange-icon xuan-coin"></div>
+                    <div class="exchange-name">玄封幣</div>
+                    <div class="exchange-rate">1 巔峰幣 = 100 玄封幣</div>
+                    <button class="btn btn-primary exchange-btn" onclick="exchangeToXuan()">兌換</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="lotteryPanel" class="panel">
+            <div class="lottery-section">
+                <div class="lottery-card">
+                    <div class="lottery-title">幸運抽獎</div>
+                    <div class="lottery-cost">消耗 5 玄封幣 / 次</div>
+                    <div class="lottery-box" id="lotteryBox" onclick="doLottery()">🎰</div>
+                    <div class="lottery-result" id="lotteryResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="shopPanel" class="panel">
+            <div class="products" id="productsList"></div>
+        </div>
+
+        <div id="adminPanel" class="admin-panel">
+            <div class="admin-header">
+                <h2>管理後台</h2>
+                <button class="btn" onclick="backToUser()">返回前台</button>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statUsers">0</div>
+                    <div class="stat-label">用戶數</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statOrders">0</div>
+                    <div class="stat-label">訂單數</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statXuan">0</div>
+                    <div class="stat-label">總玄封幣</div>
+                </div>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchAdmin('productsManage')">商品管理</button>
+                <button class="tab-btn" onclick="switchAdmin('ordersManage')">訂單管理</button>
+                <button class="tab-btn" onclick="switchAdmin('userManage')">用戶管理</button>
+            </div>
+            <div id="productsManage" class="admin-content">
+                <button class="btn btn-primary" onclick="showAddProduct()">新增商品</button>
+                <div class="orders-list" id="productsListAdmin" style="margin-top:20px"></div>
+            </div>
+            <div id="ordersManage" class="admin-content" style="display:none">
+                <div class="orders-list" id="ordersListAdmin"></div>
+            </div>
+            <div id="userManage" class="admin-content" style="display:none">
+                <div class="orders-list" id="userListAdmin"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>登入 / 註冊</h2>
+            <div class="form-group">
+                <label>用戶名</label>
+                <input type="text" id="loginUsername" placeholder="輸入用戶名">
+            </div>
+            <div class="form-group">
+                <label>密碼</label>
+                <input type="password" id="loginPassword" placeholder="輸入密碼">
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('loginModal')">取消</button>
+                <button class="btn btn-primary" onclick="doLogin()">登入</button>
+                <button class="btn btn-primary" onclick="doRegister()">註冊</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="exchangeModal">
+        <div class="modal-content">
+            <h2>兌換</h2>
+            <div class="form-group">
+                <label>兌換數量</label>
+                <input type="number" id="exchangeAmount" value="1" min="1">
+            </div>
+            <div class="form-group">
+                <label>將獲得</label>
+                <div id="exchangeGet" style="color:#ffd700;font-size:20px">-</div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('exchangeModal')">取消</button>
+                <button class="btn btn-gold" id="confirmExchangeBtn" onclick="confirmExchange()">確認兌換</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="buyModal">
+        <div class="modal-content">
+            <h2>購買商品</h2>
+            <div class="form-group">
+                <label>商品名</label>
+                <div id="buyProductName" style="font-size:18px;font-weight:bold"></div>
+            </div>
+            <div class="form-group">
+                <label>價格</label>
+                <div id="buyProductPrice" style="color:#e94560;font-size:24px;font-weight:bold"></div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('buyModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmBuy()">確認購買</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <h2 id="productModalTitle">新增商品</h2>
+            <div class="form-group">
+                <label>商品名稱</label>
+                <input type="text" id="productName">
+            </div>
+            <div class="form-group">
+                <label>商品描述</label>
+                <textarea id="productDesc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>價格 (玄封幣)</label>
+                <input type="number" id="productPrice" value="10">
+            </div>
+            <div class="form-group">
+                <label>貨源連結 (可選)</label>
+                <input type="text" id="productLink" placeholder="http://...">
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="closeModal('productModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveProduct()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const ADMIN_PASSWORD = '1';
+        let currentUser = null;
+        let exchangeType = '';
+        let selectedProduct = null;
+        let editingProductId = null;
+
+        const DEFAULT_PRODUCTS = [
+            { id: 1, name: 'VIP 7天', description: '享有7天VIP特權', price: 50, link: '' },
+            { id: 2, name: '虛擬肥料x100', description: '遊戲道具', price: 10, link: '' },
+            { id: 3, name: '幸運寶箱', description: '隨機獲得好禮', price: 30, link: '' },
+        ];
+
+        const LOTTERY_PRIZES = [
+            { name: '謝謝參與', weight: 40 },
+            { name: '5 玄封幣', weight: 30, reward: { xuan: 5 } },
+            { name: '20 玄封幣', weight: 15, reward: { xuan: 20 } },
+            { name: '50 玄封幣', weight: 8, reward: { xuan: 50 } },
+            { name: '1 巔峰幣', weight: 5, reward: { dian: 1 } },
+            { name: 'VIP 7天', weight: 2, reward: { vip: 7 } },
+        ];
+
+        function loadData() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            return { users, products: products.length ? products : DEFAULT_PRODUCTS, orders };
+        }
+
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        function init() {
+            const data = loadData();
+            if (!localStorage.getItem('products')) {
+                saveData('products', data.products);
+            }
+            checkDailyStatus();
+            loadProducts();
+            checkLogin();
+        }
+
+        function checkLogin() {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                currentUser = JSON.parse(userData);
+                updateUserUI();
+            }
+        }
+
+        function updateUserUI() {
+            if (currentUser) {
+                document.getElementById('xuanBalance').textContent = currentUser.xuan || 0;
+                document.getElementById('dianBalance').textContent = currentUser.dian || 0;
+                document.getElementById('adminBtn').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'block';
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function doLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showToast('請輸入用戶名和密碼', 'error');
+                return;
+            }
+
+            const { users } = loadData();
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                updateUserUI();
+                closeModal('loginModal');
+                showToast('登入成功！', 'success');
+            } else {
+                showToast('用戶名或密碼錯誤', 'error');
+            }
+        }
+
+        function doRegister() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showToast('請輸入用戶名和密碼', 'error');
+                return;
+            }
+
+            const { users } = loadData();
+            if (users.find(u => u.username === username)) {
+                showToast('用戶名已存在', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                username,
+                password,
+                xuan: 0,
+                dian: 0,
+                lastDaily: null,
+                createdAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            saveData('users', users);
+            
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            updateUserUI();
+            closeModal('loginModal');
+            showToast('註冊成功！', 'success');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            document.getElementById('xuanBalance').textContent = '0';
+            document.getElementById('dianBalance').textContent = '0';
+            document.getElementById('adminBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            showToast('已登出', 'success');
+        }
+
+        function checkDailyStatus() {
+            if (!currentUser) {
+                document.getElementById('dailyStatus').textContent = '請先登入';
+                document.getElementById('dailyBtn').disabled = true;
+                return;
+            }
+
+            const today = new Date().toDateString();
+            const lastDaily = currentUser.lastDaily;
+            
+            if (lastDaily === today) {
+                document.getElementById('dailyStatus').textContent = '今天已簽到！';
+                document.getElementById('dailyBtn').textContent = '已簽到';
+                document.getElementById('dailyBtn').classList.add('claimed');
+                document.getElementById('dailyBtn').disabled = true;
+            } else {
+                document.getElementById('dailyStatus').textContent = '今天還沒簽到喔！';
+                document.getElementById('dailyBtn').textContent = '簽到領取 10 玄封幣';
+                document.getElementById('dailyBtn').classList.remove('claimed');
+                document.getElementById('dailyBtn').disabled = false;
+            }
+        }
+
+        function dailyCheckIn() {
+            if (!currentUser) {
+                showToast('請先登入', 'error');
+                showLogin();
+                return;
+            }
+
+            const today = new Date().toDateString();
+            if (currentUser.lastDaily === today) {
+                return;
+            }
+
+            const { users } = loadData();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                users[userIndex].xuan = (users[userIndex].xuan || 0) + 10;
+                users[userIndex].lastDaily = today;
+                currentUser = users[userIndex];
+                saveData('users', users);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                updateUserUI();
+                checkDailyStatus();
+                showToast('獲得 10 玄封幣！', 'success');
+            }
+        }
+
+        function exchangeToDian() {
+            if (!currentUser) {
+                showToast('請先登入', 'error');
+                showLogin();
+                return;
+            }
+            exchangeType = 'toDian';
+            document.getElementById('exchangeGet').textContent = '- 巔峰幣';
+            document.getElementById('productModalTitle').textContent = '兌換巔峰幣';
+            document.getElementById('exchangeModal').classList.add('show');
+        }
+
+        function exchangeToXuan() {
+            if (!currentUser) {
+                showToast('請先登入', 'error');
+                showLogin();
+                return;
+            }
+            exchangeType = 'toXuan';
+            document.getElementById('exchangeGet').textContent = '- 玄封幣';
+            document.getElementById('productModalTitle').textContent = '兌換玄封幣';
+            document.getElementById('exchangeModal').classList.add('show');
+        }
+
+        function confirmExchange() {
+            const amount = parseInt(document.getElementById('exchangeAmount').value) || 1;
+            const { users } = loadData();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex === -1) return;
+
+            if (exchangeType === 'toDian') {
+                const cost = amount * 100;
+                if (users[userIndex].xuan < cost) {
+                    showToast('玄封幣不足', 'error');
+                    return;
+                }
+                users[userIndex].xuan -= cost;
+                users[userIndex].dian = (users[userIndex].dian || 0) + amount;
+                showToast(`兌換成功獲得 ${amount} 巔峰幣`, 'success');
+            } else {
+                if (users[userIndex].dian < amount) {
+                    showToast('巔峰幣不足', 'error');
+                    return;
+                }
+                users[userIndex].dian -= amount;
+                users[userIndex].xuan = (users[userIndex].xuan || 0) + (amount * 100);
+                showToast(`兌換成功獲得 ${amount * 100} 玄封幣`, 'success');
+            }
+
+            currentUser = users[userIndex];
+            saveData('users', users);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserUI();
+            closeModal('exchangeModal');
+        }
+
+        function doLottery() {
+            if (!currentUser) {
+                showToast('請先登入', 'error');
+                showLogin();
+                return;
+            }
+
+            const cost = 5;
+            const { users } = loadData();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex === -1) return;
+            if (users[userIndex].xuan < cost) {
+                showToast('玄封幣不足', 'error');
+                return;
+            }
+
+            const box = document.getElementById('lotteryBox');
+            box.classList.add('spin');
+            document.getElementById('lotteryResult').classList.remove('show');
+
+            users[userIndex].xuan -= cost;
+            currentUser = users[userIndex];
+            saveData('users', users);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserUI();
+
+            setTimeout(() => {
+                box.classList.remove('spin');
+                
+                const totalWeight = LOTTERY_PRIZES.reduce((sum, p) => sum + p.weight, 0);
+                let random = Math.random() * totalWeight;
+                let prize = LOTTERY_PRIZES[0];
+                
+                for (const p of LOTTERY_PRIZES) {
+                    random -= p.weight;
+                    if (random <= 0) {
+                        prize = p;
+                        break;
+                    }
+                }
+
+                const resultEl = document.getElementById('lotteryResult');
+                if (prize.reward) {
+                    if (prize.reward.xuan) {
+                        users[userIndex].xuan = (users[userIndex].xuan || 0) + prize.reward.xuan;
+                    }
+                    if (prize.reward.dian) {
+                        users[userIndex].dian = (users[userIndex].dian || 0) + prize.reward.dian;
+                    }
+                    
+                    let rewardText = [];
+                    if (prize.reward.xuan) rewardText.push(`${prize.reward.xuan} 玄封幣`);
+                    if (prize.reward.dian) rewardText.push(`${prize.reward.dian} 巔峰幣`);
+                    if (prize.reward.vip) rewardText.push(`VIP ${prize.reward.vip}天`);
+                    
+                    resultEl.className = 'lottery-result show win';
+                    resultEl.innerHTML = `🎉 獲得 <strong>${prize.name}</strong><br><small>${rewardText.join(', ')}</small>`;
+                } else {
+                    resultEl.className = 'lottery-result show lose';
+                    resultEl.innerHTML = `😢 ${prize.name}`;
+                }
+
+                currentUser = users[userIndex];
+                saveData('users', users);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserUI();
+            }, 1000);
+        }
+
+        function loadProducts() {
+            const { products } = loadData();
+            const container = document.getElementById('productsList');
+            container.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-img">📦</div>
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-desc">${p.description || ''}</div>
+                        <div class="product-footer">
+                            <span class="price">${p.price} 玄封幣</span>
+                            <button class="btn" onclick="buyProduct(${p.id})">購買</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const adminContainer = document.getElementById('productsListAdmin');
+            adminContainer.innerHTML = products.map(p => `
+                <div class="order-item">
+                    <div>
+                        <strong>${p.name}</strong><br>
+                        <small>${p.description || ''}</small>
+                    </div>
+                    <div>${p.price} 玄封幣</div>
+                    <div>
+                        <button class="btn" onclick="editProduct(${p.id})">編輯</button>
+                        <button class="btn" onclick="deleteProduct(${p.id})" style="background:#e74c3c">刪除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function buyProduct(id) {
+            if (!currentUser) {
+                showToast('請先登入', 'error');
+                showLogin();
+                return;
+            }
+
+            const { products } = loadData();
+            selectedProduct = products.find(p => p.id === id);
+            
+            if (selectedProduct) {
+                document.getElementById('buyProductName').textContent = selectedProduct.name;
+                document.getElementById('buyProductPrice').textContent = selectedProduct.price + ' 玄封幣';
+                document.getElementById('buyModal').classList.add('show');
+            }
+        }
+
+        function confirmBuy() {
+            if (!currentUser || !selectedProduct) return;
+
+            const { users, orders } = loadData();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex === -1) return;
+            if (users[userIndex].xuan < selectedProduct.price) {
+                showToast('玄封幣不足', 'error');
+                return;
+            }
+
+            users[userIndex].xuan -= selectedProduct.price;
+            const order = {
+                id: Date.now(),
+                userId: currentUser.id,
+                productId: selectedProduct.id,
+                productName: selectedProduct.name,
+                price: selectedProduct.price,
+                status: 'completed',
+                createdAt: new Date().toISOString()
+            };
+            orders.push(order);
+            
+            currentUser = users[userIndex];
+            saveData('users', users);
+            saveData('orders', orders);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserUI();
+            
+            closeModal('buyModal');
+            showToast('購買成功！', 'success');
+        }
+
+        function showAddProduct() {
+            editingProductId = null;
+            document.getElementById('productModalTitle').textContent = '新增商品';
+            document.getElementById('productName').value = '';
+            document.getElementById('productDesc').value = '';
+            document.getElementById('productPrice').value = '10';
+            document.getElementById('productLink').value = '';
+            document.getElementById('productModal').classList.add('show');
+        }
+
+        function editProduct(id) {
+            const { products } = loadData();
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            editingProductId = id;
+            document.getElementById('productModalTitle').textContent = '編輯商品';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productDesc').value = product.description || '';
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productLink').value = product.link || '';
+            document.getElementById('productModal').classList.add('show');
+        }
+
+        function saveProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const description = document.getElementById('productDesc').value.trim();
+            const price = parseInt(document.getElementById('productPrice').value) || 10;
+            const link = document.getElementById('productLink').value.trim();
+
+            if (!name) {
+                showToast('請輸入商品名稱', 'error');
+                return;
+            }
+
+            const { products } = loadData();
+            
+            if (editingProductId) {
+                const index = products.findIndex(p => p.id === editingProductId);
+                if (index !== -1) {
+                    products[index] = { ...products[index], name, description, price, link };
+                }
+            } else {
+                products.push({
+                    id: Date.now(),
+                    name,
+                    description,
+                    price,
+                    link
+                });
+            }
+
+            saveData('products', products);
+            closeModal('productModal');
+            loadProducts();
+            showToast('儲存成功', 'success');
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('確定刪除？')) return;
+            
+            const { products } = loadData();
+            const filtered = products.filter(p => p.id !== id);
+            saveData('products', filtered);
+            loadProducts();
+            showToast('刪除成功', 'success');
+        }
+
+        function showAdmin() {
+            const pw = prompt('請輸入管理員密碼');
+            if (pw !== ADMIN_PASSWORD) {
+                showToast('密碼錯誤', 'error');
+                return;
+            }
+
+            document.getElementById('mainTabs').style.display = 'none';
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('adminPanel').classList.add('active');
+            
+            loadStats();
+            loadOrdersAdmin();
+            loadUsersAdmin();
+        }
+
+        function backToUser() {
+            document.getElementById('mainTabs').style.display = 'flex';
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('dailyPanel').classList.add('active');
+        }
+
+        function loadStats() {
+            const { users, orders } = loadData();
+            const totalXuan = users.reduce((sum, u) => sum + (u.xuan || 0), 0);
+            
+            document.getElementById('statUsers').textContent = users.length;
+            document.getElementById('statOrders').textContent = orders.length;
+            document.getElementById('statXuan').textContent = totalXuan;
+        }
+
+        function loadOrdersAdmin() {
+            const { orders } = loadData();
+            const container = document.getElementById('ordersListAdmin');
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="order-item">尚無訂單</div>';
+                return;
+            }
+            
+            container.innerHTML = orders.map(o => `
+                <div class="order-item">
+                    <div>
+                        <strong>${o.productName}</strong><br>
+                        <small>用戶ID: ${o.userId}</small>
+                    </div>
+                    <div>${o.price} 玄封幣</div>
+                    <span class="order-status ${o.status}">${o.status === 'completed' ? '已完成' : '待處理'}</span>
+                </div>
+            `).join('');
+        }
+
+        function loadUsersAdmin() {
+            const { users } = loadData();
+            const container = document.getElementById('userListAdmin');
+            
+            container.innerHTML = users.map(u => `
+                <div class="order-item">
+                    <div>
+                        <strong>${u.username}</strong><br>
+                        <small>ID: ${u.id}</small>
+                    </div>
+                    <div>玄封幣: ${u.xuan || 0}<br>巔峰幣: ${u.dian || 0}</div>
+                    <button class="btn" onclick="manageUser(${u.id})">管理</button>
+                </div>
+            `).join('');
+        }
+
+        function manageUser(id) {
+            const { users } = loadData();
+            const user = users.find(u => u.id === id);
+            if (!user) return;
+
+            const action = prompt(`管理用戶 ${user.username}\n1: 給玄封幣\n2: 給巔峰幣\n3: 刪除用戶`);
+            
+            if (action === '1') {
+                const amount = parseInt(prompt('輸入數量')) || 0;
+                const idx = users.findIndex(u => u.id === id);
+                if (idx !== -1) {
+                    users[idx].xuan = (users[idx].xuan || 0) + amount;
+                    saveData('users', users);
+                    loadUsersAdmin();
+                    loadStats();
+                    showToast(`給 ${amount} 玄封幣`, 'success');
+                }
+            } else if (action === '2') {
+                const amount = parseInt(prompt('輸入數量')) || 0;
+                const idx = users.findIndex(u => u.id === id);
+                if (idx !== -1) {
+                    users[idx].dian = (users[idx].dian || 0) + amount;
+                    saveData('users', users);
+                    loadUsersAdmin();
+                    loadStats();
+                    showToast(`給 ${amount} 巔峰幣`, 'success');
+                }
+            } else if (action === '3') {
+                if (confirm('確定刪除此用戶？')) {
+                    const filtered = users.filter(u => u.id !== id);
+                    saveData('users', filtered);
+                    loadUsersAdmin();
+                    loadStats();
+                    showToast('刪除成功', 'success');
+                }
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tab + 'Panel').classList.add('active');
+        }
+
+        function switchAdmin(tab) {
+            document.querySelectorAll('.admin-content').forEach(p => p.style.display = 'none');
+            document.getElementById(tab).style.display = 'block';
+            
+            event.target.parentElement.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show ' + type;
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
