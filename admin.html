@@ -84,16 +84,19 @@
             }
         }
 
-        async function loadProducts() {
+async function loadProducts() {
             try {
-                const { data } = await db.from('products').select('*').order('created_at', { ascending: false });
+                const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
+                console.log('products:', data, 'error:', error);
                 document.getElementById('productsList').innerHTML = (data || []).map(p => `
                     <tr><td>${p.name}</td><td>${p.price}</td><td>${p.stock}</td>
                     <td><button class="btn" onclick="editProduct('${p.id}', '${p.name}', ${p.price}, ${p.stock})">編輯</button></td></tr>
                 `).join('') || '<tr><td colspan="4">暫無商品</td></tr>';
             } catch(e) {
-                document.getElementById('productsList').innerHTML = '<tr><td colspan="4">載入失敗</td></tr>';
+                console.log('error:', e);
+                document.getElementById('productsList').innerHTML = '<tr><td colspan="4">載入失敗: ' + e.message + '</td></tr>';
             }
+        }
         }
 
         async function addProduct() {

@@ -144,9 +144,10 @@
         function logout() { db.auth.signOut().then(() => location.reload()); }
         function showProfile() { alert('玄封幣: ' + coins.xf + '\n巔峰幣: ' + coins.df); }
 
-        async function loadProducts() {
+async function loadProducts() {
             try {
-                const { data } = await db.from('products').select('*').eq('is_visible', 1).order('sort');
+                const { data, error } = await db.from('products').select('*').eq('is_visible', 1).order('sort');
+                console.log('products:', data, 'error:', error);
                 document.getElementById('products').innerHTML = (data || []).map(p => `
                     <div class="product">
                         <div class="product-img">${p.image_url ? `<img src="${p.image_url}">` : '暫無圖片'}</div>
@@ -156,10 +157,12 @@
                             <button class="btn" onclick="buy('${p.id}')">購買</button>
                         </div>
                     </div>
-                `).join('') || '<p style="text-align:center;color:#999;padding:40px">暫無商品</p>';
+                `).join('') || '<p style="text-align:center;color:#999;padding:40px">暫無商品 - 請到後台新增</p>';
             } catch(e) {
-                document.getElementById('products').innerHTML = '<p style="text-align:center;color:#999;padding:40px">載入失敗</p>';
+                console.log('loadProducts error:', e);
+                document.getElementById('products').innerHTML = '<p style="text-align:center;color:red;padding:40px">載入失敗: ' + e.message + '</p>';
             }
+        }
         }
 
         async function buy(id) {
