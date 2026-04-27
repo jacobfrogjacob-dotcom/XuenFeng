@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f5f5f5; color: #333; }
         .header { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 20px; font-weight: bold; color: #e74c3c; }
+        .logo { font-size: 20px; font-weight: bold; color: #3498db; }
         .user-info { display: flex; align-items: center; gap: 10px; }
         .coin-box { display: flex; gap: 8px; }
         .coin { display: flex; align-items: center; gap: 5px; background: #fff3cd; padding: 5px 12px; border-radius: 20px; font-size: 13px; }
@@ -17,22 +17,22 @@
         .coin.df { background: #e8daef; }
         .btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .btn:hover { background: #2980b9; }
-        .banner { background: linear-gradient(135deg, #e74c3c, #c0392b); padding: 50px 20px; text-align: center; color: #fff; }
+        .daily-btn { background: #f39c12; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .banner { background: linear-gradient(135deg, #3498db, #2980b9); padding: 50px 20px; text-align: center; color: #fff; }
         .banner h1 { font-size: 28px; }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
         .tab { background: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
-        .tab.active { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+        .tab.active { background: #3498db; color: #fff; border-color: #3498db; }
         .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
         .product { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .product:hover { transform: translateY(-3px); }
         .product-img { width: 100%; height: 150px; background: #f9f9f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden; }
         .product-img img { width: 100%; height: 100%; object-fit: cover; }
         .product-name { font-weight: bold; margin-bottom: 5px; }
-        .product-price { color: #e74c3c; font-size: 18px; font-weight: bold; }
+        .product-price { color: #3498db; font-size: 18px; font-weight: bold; }
         .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .daily-btn { background: #f39c12; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         
         @media (max-width: 768px) {
             .header { flex-wrap: wrap; gap: 10px; justify-content: center; }
@@ -99,8 +99,11 @@
         </div>
     </div>
 
-    <script src="supabase.js"></script>
     <script>
+        const SUPABASE_URL = 'https://chjuzpbocdkdiyuuziye.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let user = null;
         let coins = { xf: 0, df: 0, lastClaim: null };
 
@@ -125,57 +128,47 @@
             document.getElementById('df').textContent = coins.df;
         }
 
-        async function loadProducts() {
-            const { data } = await supabaseClient.from('products').select('*').eq('is_visible', 1).order('sort');
-            document.getElementById('products').innerHTML = (data || []).map(p => `
-                <div class="product">
-                    <div class="product-img">${p.image_url ? `<img src="${p.image_url}">` : '暫無圖片'}</div>
-                    <div class="product-name">${p.name}</div>
-                    <div class="product-price">${p.price} 代幣</div>
-                    <div class="product-footer">
-                        <button class="btn" onclick="buy('${p.id}')">購買</button>
-                    </div>
-                </div>
-            `).join('') || '<p style="text-align:center;color:#999;padding:40px">暫無商品</p>';
-        }
-
-        function showTab(tab, el) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('shopTab').style.display = tab === 'shop' ? 'block' : 'none';
-            document.getElementById('exchangeTab').style.display = tab === 'exchange' ? 'block' : 'none';
-            document.getElementById('luckTab').style.display = tab === 'luck' ? 'block' : 'none';
-            document.getElementById('claimTab').style.display = tab === 'claim' ? 'block' : 'none';
-        }
-
         async function checkLogin() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                user = session.user;
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('userBtn').style.display = 'block';
-                document.getElementById('logoutBtn').style.display = 'block';
+            try {
+                const { data } = await supabase.auth.getSession();
+                if (data.session) {
+                    user = data.session.user;
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.getElementById('userBtn').style.display = 'block';
+                    document.getElementById('logoutBtn').style.display = 'block';
+                }
+            } catch(e) {}
+        }
+
+        function showLogin() { window.open('https://chjuzpbocdkdiyuuziye.supabase.co/auth/v1/verify?redirectTo=' + encodeURIComponent(location.href)); }
+        function logout() { supabase.auth.signOut().then(() => location.reload()); }
+        function showProfile() { alert('玄封幣: ' + coins.xf + '\n巔峰幣: ' + coins.df); }
+
+        async function loadProducts() {
+            try {
+                const { data } = await supabase.from('products').select('*').eq('is_visible', 1).order('sort');
+                document.getElementById('products').innerHTML = (data || []).map(p => `
+                    <div class="product">
+                        <div class="product-img">${p.image_url ? `<img src="${p.image_url}">` : '暫無圖片'}</div>
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-price">${p.price} 代幣</div>
+                        <div class="product-footer">
+                            <button class="btn" onclick="buy('${p.id}')">購買</button>
+                        </div>
+                    </div>
+                `).join('') || '<p style="text-align:center;color:#999;padding:40px">暫無商品</p>';
+            } catch(e) {
+                document.getElementById('products').innerHTML = '<p style="text-align:center;color:#999;padding:40px">載入失敗</p>';
             }
-        }
-
-        function showLogin() { location.href = 'https://chjuzpbocdkdiyuuziye.supabase.co/auth/v1/verify?redirectTo=' + encodeURIComponent(location.href); }
-
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            location.reload();
-        }
-
-        function showProfile() {
-            alert(`玄封幣: ${coins.xf}\n巔峰幣: ${coins.df}`);
         }
 
         async function buy(id) {
             if (!user) { showLogin(); return; }
-            const { data } = await supabaseClient.from('products').select('*').eq('id', id).single();
+            const { data } = await supabase.from('products').select('*').eq('id', id).single();
             if (coins.xf < data.price) { alert('餘額不足！'); return; }
             coins.xf -= data.price;
             saveCoins();
-            await supabaseClient.from('orders').insert({ user_id: user.id, product_id: id, status: 'completed' });
+            await supabase.from('orders').insert({ user_id: user.id, product_id: id, status: 'completed' });
             alert('購買成功！');
         }
 
@@ -197,7 +190,7 @@
             coins.xf -= cost;
             coins.df += amount;
             saveCoins();
-            alert(`兌換成功！獲得 ${amount} 巔峰幣`);
+            alert('兌換成功！獲得 ' + amount + ' 巔峰幣');
         }
 
         function doLucky() {
@@ -206,11 +199,20 @@
             coins.xf -= 10;
             const prizes = [5, 10, 20, 50, 1];
             const prize = prizes[Math.floor(Math.random() * prizes.length)];
-            const name = prize > 1 ? `${prize} 玄封幣` : '1 巔峰幣';
+            const name = prize > 1 ? prize + ' 玄封幣' : '1 巔峰幣';
             if (prize > 1) coins.xf += prize;
             else coins.df += 1;
             saveCoins();
-            document.getElementById('luckResult').innerHTML = `<h2 style="color:#e74c3c">🎉 獲得 ${name}</h2>`;
+            document.getElementById('luckResult').innerHTML = '<h2 style="color:#3498db">🎉 獲得 ' + name + '</h2>';
+        }
+
+        function showTab(tab, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('shopTab').style.display = tab === 'shop' ? 'block' : 'none';
+            document.getElementById('exchangeTab').style.display = tab === 'exchange' ? 'block' : 'none';
+            document.getElementById('luckTab').style.display = tab === 'luck' ? 'block' : 'none';
+            document.getElementById('claimTab').style.display = tab === 'claim' ? 'block' : 'none';
         }
 
         init();
