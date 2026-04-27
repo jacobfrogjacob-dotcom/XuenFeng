@@ -87,6 +87,7 @@
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; color: #666; font-size: 14px; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; background: #f5f5f5; border: 2px solid #e8e8e8; border-radius: 10px; color: #333; font-size: 16px; }
+            .form-group select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 35px; }
         .form-group input:focus, .form-group textarea:focus { border-color: #1890ff; outline: none; background: #fff; }
         .form-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
         .form-actions .btn { flex: 1; min-width: 80px; }
@@ -143,6 +144,7 @@
             .modal h2 { font-size: 18px; }
             .form-group { margin-bottom: 15px; }
             .form-group input, .form-group textarea { padding: 10px; font-size: 14px; }
+            .form-group select { padding: 10px; font-size: 14px; }
             .form-actions { flex-direction: column; }
             .form-actions .btn { width: 100%; }
             .admin-header { flex-direction: column; text-align: center; }
@@ -333,6 +335,13 @@
             <div class="form-group">
                 <label>商品名稱</label>
                 <input type="text" id="productName">
+            </div>
+            <div class="form-group">
+                <label>商品類型</label>
+                <select id="productType">
+                    <option value="kami">卡密商品</option>
+                    <option value="other">其他商品</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>商品描述</label>
@@ -766,6 +775,7 @@
             editingProductId = id;
             document.getElementById('productModalTitle').textContent = '編輯商品';
             document.getElementById('productName').value = product.name;
+            document.getElementById('productType').value = product.type || 'kami';
             document.getElementById('productDesc').value = product.description || '';
             document.getElementById('productPrice').value = product.price;
             document.getElementById('productLink').value = product.link || '';
@@ -774,6 +784,7 @@
 
         function saveProduct() {
             const name = document.getElementById('productName').value.trim();
+            const type = document.getElementById('productType').value;
             const description = document.getElementById('productDesc').value.trim();
             const price = parseInt(document.getElementById('productPrice').value) || 10;
             const link = document.getElementById('productLink').value.trim();
@@ -788,12 +799,13 @@
             if (editingProductId) {
                 const index = products.findIndex(p => p.id === editingProductId);
                 if (index !== -1) {
-                    products[index] = { ...products[index], name, description, price, link };
+                    products[index] = { ...products[index], name, type, description, price, link };
                 }
             } else {
                 products.push({
                     id: Date.now(),
                     name,
+                    type,
                     description,
                     price,
                     link
