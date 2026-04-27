@@ -14,9 +14,8 @@
         
         .user-info { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: flex-end; }
         .coin-display { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 25px; }
-        .coin-icon { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .xuan-coin { background: url('玄封幣.png'); background-size: cover; }
-        .dian-coin { background: url('巔峰幣.png'); background-size: cover; }
+        .coin-icon { width: 28px; height: 28px; border-radius: 50%; }
+        .coin-amount { font-weight: bold; font-size: 16px; }
         
         .btn { background: #0f3460; border: none; color: #fff; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
         .btn:hover { background: #e94560; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4); }
@@ -49,7 +48,7 @@
         .exchange-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .exchange-card { background: linear-gradient(135deg, #16213e, #0f3460); border-radius: 15px; padding: 25px; text-align: center; border: 2px solid #764ba2; }
         .exchange-card.gold { border-color: #ffd700; }
-        .exchange-icon { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; }
+        .exchange-icon { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px; object-fit: cover; }
         .exchange-name { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
         .exchange-rate { color: #aaa; margin-bottom: 15px; }
         .exchange-btn { width: 100%; padding: 12px; font-size: 16px; }
@@ -127,11 +126,11 @@
         <div class="logo">歡樂<span>農場</span> 代幣商城</div>
         <div class="user-info" id="userInfo">
             <div class="coin-display">
-                <div class="coin-icon xuan-coin"></div>
+                <img class="coin-icon" src="玄封幣.png" alt="玄封幣">
                 <span class="coin-amount" id="xuanBalance">0</span>
             </div>
             <div class="coin-display">
-                <div class="coin-icon dian-coin"></div>
+                <img class="coin-icon" src="巔峰幣.png" alt="巔峰幣">
                 <span class="coin-amount" id="dianBalance">0</span>
             </div>
             <button class="btn" onclick="showLogin()">登入</button>
@@ -165,13 +164,13 @@
         <div id="exchangePanel" class="panel">
             <div class="exchange-section">
                 <div class="exchange-card">
-                    <div class="exchange-icon dian-coin"></div>
+                    <img class="exchange-icon" src="巔峰幣.png" alt="巔峰幣">
                     <div class="exchange-name">巔峰幣</div>
                     <div class="exchange-rate">100 玄封幣 = 1 巔峰幣</div>
                     <button class="btn btn-gold exchange-btn" onclick="exchangeToDian()">兌換</button>
                 </div>
                 <div class="exchange-card">
-                    <div class="exchange-icon xuan-coin"></div>
+                    <img class="exchange-icon" src="玄封幣.png" alt="玄封幣">
                     <div class="exchange-name">玄封幣</div>
                     <div class="exchange-rate">1 巔峰幣 = 100 玄封幣</div>
                     <button class="btn btn-primary exchange-btn" onclick="exchangeToXuan()">兌換</button>
