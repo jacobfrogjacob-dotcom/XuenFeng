@@ -3,427 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>玄封商店 - 後台管理</title>
+    <title>玄封商店 - 後台</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f0f4f8; color: #333; }
-        .header { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 18px; font-weight: bold; color: #0b90d8; }
-        .container { max-width: 1400px; margin: 15px auto; padding: 0 15px; }
-        .sidebar { width: 160px; background: #fff; padding: 12px; border-radius: 8px; position: fixed; top: 60px; left: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .menu-item { padding: 10px 12px; cursor: pointer; border-radius: 4px; margin-bottom: 3px; font-size: 13px; color: #666; }
-        .menu-item:hover, .menu-item.active { background: #e6f3fa; color: #0b90d8; }
-        .main { margin-left: 185px; }
-        .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .card h2 { margin-bottom: 12px; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-        .btn { background: #e6eef5; border: none; color: #333; padding: 7px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 6px; }
-        .btn:hover { background: #0b90d8; color: #fff; }
-        .btn-primary { background: #0b90d8; color: #fff; }
-        .btn-danger { background: #e74c3c; color: #fff; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f9f9f9; color: #666; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; margin-bottom: 4px; font-size: 12px; color: #666; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-        .stat-card { background: #f9f9f9; padding: 12px; border-radius: 6px; text-align: center; }
-        .stat-card .num { font-size: 20px; font-weight: bold; color: #0b90d8; }
-        .stat-card .label { color: #888; font-size: 11px; margin-top: 4px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 15px; }
-        .modal.show { display: flex; }
-        .modal-content { background: #fff; padding: 18px; border-radius: 8px; max-width: 450px; width: 100%; max-height: 80vh; overflow-y: auto; }
-        .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .badge { padding: 2px 6px; border-radius: 3px; font-size: 10px; }
-        .badge-success { background: #27ae60; color: #fff; }
-        .badge-error { background: #e74c3c; color: #fff; }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; position: static; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
-            .menu-item { flex: 1 1 auto; text-align: center; padding: 8px 10px; font-size: 11px; }
-            .main { margin-left: 0; }
-            .grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f5f5f5; color: #333; }
+        .header { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 18px; font-weight: bold; color: #e74c3c; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .sidebar { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .menu-item { background: #e74c3c; color: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .menu-item.active { background: #c0392b; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card h2 { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .btn-danger { background: #e74c3c; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .stat { background: #fff3cd; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat .num { font-size: 28px; font-weight: bold; color: #e74c3c; }
+        .stat .label { color: #888; }
+        .badge { padding: 3px 8px; border-radius: 3px; font-size: 12px; background: #27ae60; color: #fff; }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="logo">⚙️ 玄封商店 後台</div>
-        <div>
-            <button class="btn" onclick="location.href='index.html'">前台</button>
-            <button class="btn btn-danger" onclick="logout()">登出</button>
-        </div>
+        <button class="btn" onclick="location.href='index.html'">返回前台</button>
     </header>
 
     <div class="container">
         <div class="sidebar">
-            <div class="menu-item active" onclick="showTab('dashboard', this)">📊 儀表板</div>
-            <div class="menu-item" onclick="showTab('settings', this)">⚙️ 設置</div>
-            <div class="menu-item" onclick="showTab('categories', this)">📁 分類</div>
+            <div class="menu-item active" onclick="showTab('stats', this)">📊 統計</div>
             <div class="menu-item" onclick="showTab('products', this)">📦 商品</div>
-            <div class="menu-item" onclick="showTab('orders', this)">📋 訂單</div>
+            <div class="menu-item" onclick="showTab('categories', this)">📁 分類</div>
+            <div class="menu-item" onclick="showTab('settings', this)">⚙️ 設置</div>
             <div class="menu-item" onclick="showTab('users', this)">👤 用戶</div>
             <div class="menu-item" onclick="showTab('coins', this)">💰 代幣</div>
         </div>
 
-        <div class="main">
-            <div class="tab-content active" id="dashboard">
-                <div class="grid" style="margin-bottom:15px">
-                    <div class="stat-card"><div class="num" id="statUsers">0</div><div class="label">總用戶</div></div>
-                    <div class="stat-card"><div class="num" id="statProducts">0</div><div class="label">總商品</div></div>
-                    <div class="stat-card"><div class="num" id="statOrders">0</div><div class="label">總訂單</div></div>
-                    <div class="stat-card"><div class="num" id="statRevenue">0</div><div class="label">總消費</div></div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="settings">
-                <div class="card">
-                    <h2>網站設置</h2>
-                    <div class="form-row">
-                        <div class="form-group"><label>網站名稱</label><input type="text" id="siteName"></div>
-                        <div class="form-group"><label>網站描述</label><input type="text" id="siteDesc"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>玄封幣圖標網址</label><input type="text" id="xfIcon"></div>
-                        <div class="form-group"><label>巔峰幣圖標網址</label><input type="text" id="dfIcon"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>每日領取數量</label><input type="number" id="dailyBonus" value="50"></div>
-                        <div class="form-group"><label>兌換比例</label><input type="number" id="exchangeRate" value="100"></div>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveSettings()">保存</button>
-                </div>
-            </div>
-
-            <div class="tab-content" id="categories">
-                <div class="card">
-                    <h2>分類管理 <button class="btn btn-primary" onclick="showCategoryModal()">+ 新增</button></h2>
-                    <table><thead><tr><th>名稱</th><th>描述</th><th>操作</th></tr></thead><tbody id="categoriesList"></tbody></table>
-                </div>
-            </div>
-
-            <div class="tab-content" id="products">
-                <div class="card">
-                    <h2>商品管理 <button class="btn btn-primary" onclick="showProductModal()">+ 新增</button></h2>
-                    <table><thead><tr><th>名稱</th><th>分類</th><th>價格</th><th>庫存</th><th>操作</th></tr></thead><tbody id="productsList"></tbody></table>
-                </div>
-            </div>
-
-            <div class="tab-content" id="orders">
-                <div class="card">
-                    <h2>訂單管理</h2>
-                    <table><thead><tr><th>商品</th><th>用戶</th><th>狀態</th></tr></thead><tbody id="ordersList"></tbody></table>
-                </div>
-            </div>
-
-            <div class="tab-content" id="users">
-                <div class="card">
-                    <h2>用戶管理</h2>
-                    <div class="search-bar"><input type="text" id="userSearch" placeholder="搜尋..." oninput="searchUsers()"></div>
-                    <table><thead><tr><th>用戶名</th><th>信箱</th><th>玄封幣</th><th>巔峰幣</th><th>操作</th></tr></thead><tbody id="usersList"></tbody></table>
-                </div>
-            </div>
-
-            <div class="tab-content" id="coins">
-                <div class="card">
-                    <h2>充值代幣</h2>
-                    <div class="form-group"><label>搜尋用戶</label><input type="text" id="searchUser" placeholder="輸入用戶名..." oninput="searchUserForCharge()"></div>
-                    <div id="searchResult"></div>
-                </div>
+        <div id="statsTab" class="tab-content active">
+            <div class="grid">
+                <div class="stat"><div class="num" id="statUsers">0</div><div class="label">用戶</div></div>
+                <div class="stat"><div class="num" id="statProducts">0</div><div class="label">商品</div></div>
+                <div class="stat"><div class="num" id="statOrders">0</div><div class="label">訂單</div></div>
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="categoryModal">
-        <div class="modal-content">
-            <h2>分類</h2>
-            <div class="form-group"><label>名稱</label><input type="text" id="catName"></div>
-            <div class="form-group"><label>描述</label><textarea id="catDesc"></textarea></div>
-            <div class="form-group"><label>排序</label><input type="number" id="catSort" value="0"></div>
-            <input type="hidden" id="catId">
-            <div class="form-actions">
-                <button class="btn" onclick="closeModal('categoryModal')">取消</button>
-                <button class="btn btn-danger" id="deleteCatBtn" style="display:none" onclick="deleteCategory()">刪除</button>
-                <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+        <div id="productsTab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>商品管理 <button class="btn" onclick="showProductModal()">+ 新增</button></h2>
+                <table><thead><tr><th>名稱</th><th>分類</th><th>價格</th><th>庫存</th><th>操作</th></tr></thead><tbody id="productsList"></tbody></table>
             </div>
         </div>
-    </div>
 
-    <div class="modal" id="productModal">
-        <div class="modal-content">
-            <h2>商品</h2>
-            <div class="form-row">
-                <div class="form-group"><label>名稱</label><input type="text" id="prodName"></div>
-                <div class="form-group"><label>分類</label><select id="prodCat"></select></div>
+        <div id="categoriesTab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>分類管理 <button class="btn" onclick="showCatModal()">+ 新增</button></h2>
+                <table><thead><tr><th>名稱</th><th>操作</th></tr></thead><tbody id="categoriesList"></tbody></table>
             </div>
-            <div class="form-group"><label>描述</label><textarea id="prodDesc"></textarea></div>
-            <div class="form-row">
-                <div class="form-group"><label>價格</label><input type="number" id="prodPrice"></div>
-                <div class="form-group"><label>庫存(-1無限)</label><input type="number" id="prodStock" value="-1"></div>
+        </div>
+
+        <div id="settingsTab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>網站設置</h2>
+                <div class="form-group"><label>網站名稱</label><input type="text" id="siteName"></div>
+                <div class="form-group"><label>玄封幣圖標</label><input type="text" id="xfIcon" placeholder="如: 玄封幣.png"></div>
+                <div class="form-group"><label>巔峰幣圖標</label><input type="text" id="dfIcon" placeholder="如: 巔峰幣.png"></div>
+                <button class="btn" onclick="saveSettings()">保存</button>
             </div>
-            <div class="form-group"><label>圖片網址</label><input type="text" id="prodImg"></div>
-            <div class="form-row">
-                <div class="form-group"><label>自動發貨</label><select id="prodAuto"><option value="0">關閉</option><option value="1">開啟</option></select></div>
-                <div class="form-group"><label>顯示</label><select id="prodVisible"><option value="1">顯示</option><option value="0">隱藏</option></select></div>
+        </div>
+
+        <div id="usersTab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>用戶管理</h2>
+                <table><thead><tr><th>用戶名</th><th>信箱</th><th>玄封幣</th><th>巔峰幣</th><th>操作</th></tr></thead><tbody id="usersList"></tbody></table>
             </div>
-            <div class="form-group"><label>排序</label><input type="number" id="prodSort" value="0"></div>
-            <input type="hidden" id="prodId">
-            <div class="form-actions">
-                <button class="btn" onclick="closeModal('productModal')">取消</button>
-                <button class="btn btn-danger" id="deleteProdBtn" style="display:none" onclick="deleteProduct()">刪除</button>
-                <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+        </div>
+
+        <div id="coinsTab" class="tab-content" style="display:none">
+            <div class="card">
+                <h2>充值代幣</h2>
+                <div class="form-group"><label>搜尋用戶</label><input type="text" id="searchUser" oninput="searchUser()"></div>
+                <div id="searchResult"></div>
             </div>
         </div>
     </div>
 
     <script src="supabase.js"></script>
     <script>
-        let currentUser = null;
-        let categories = [];
-        let products = [];
+        let products = [], categories = [];
 
         async function init() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) { location.href = 'index.html'; return; }
-            currentUser = session.user;
-            loadSettings();
-            loadCategories();
-            loadProducts();
-            loadOrders();
-            loadUsers();
             loadStats();
+            loadProducts();
+            loadCategories();
+            loadSettings();
+            loadUsers();
         }
 
         function showTab(tab, el) {
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
             el.classList.add('active');
-            document.getElementById(tab).classList.add('active');
+            document.getElementById(tab + 'Tab').style.display = 'block';
         }
 
         async function loadStats() {
             const { count: users } = await supabaseClient.from('users').select('*', { count: 'exact', head: true });
             const { count: products } = await supabaseClient.from('products').select('*', { count: 'exact', head: true });
             const { count: orders } = await supabaseClient.from('orders').select('*', { count: 'exact', head: true });
-            document.getElementById('statUsers').textContent = users;
-            document.getElementById('statProducts').textContent = products;
-            document.getElementById('statOrders').textContent = orders;
-            const { data: orderData } = await supabaseClient.from('orders').select('products(price)');
-            const revenue = orderData?.reduce((sum, o) => sum + (o.products?.price || 0), 0) || 0;
-            document.getElementById('statRevenue').textContent = revenue;
-        }
-
-        async function loadSettings() {
-            const { data } = await supabaseClient.from('settings').select('id, value');
-            data?.forEach(s => {
-                if (s.id === 'site_name') document.getElementById('siteName').value = s.value;
-                if (s.id === 'site_description') document.getElementById('siteDesc').value = s.value;
-                if (s.id === 'xuanfeng_icon') document.getElementById('xfIcon').value = s.value || '';
-                if (s.id === 'dianfeng_icon') document.getElementById('dfIcon').value = s.value || '';
-                if (s.id === 'daily_bonus') document.getElementById('dailyBonus').value = s.value || 50;
-                if (s.id === 'exchange_rate') document.getElementById('exchangeRate').value = s.value || 100;
-            });
-        }
-
-        async function saveSettings() {
-            const updates = [
-                { id: 'site_name', value: document.getElementById('siteName').value },
-                { id: 'site_description', value: document.getElementById('siteDesc').value },
-                { id: 'xuanfeng_icon', value: document.getElementById('xfIcon').value },
-                { id: 'dianfeng_icon', value: document.getElementById('dfIcon').value },
-                { id: 'daily_bonus', value: document.getElementById('dailyBonus').value },
-                { id: 'exchange_rate', value: document.getElementById('exchangeRate').value }
-            ];
-            for (const u of updates) { await supabaseClient.from('settings').upsert(u); }
-            alert('保存成功');
-            loadSettings();
-        }
-
-        async function loadCategories() {
-            const { data } = await supabaseClient.from('categories').select('*').order('sort');
-            categories = data || [];
-            renderCategories();
-            const select = document.getElementById('prodCat');
-            select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-        }
-
-        function renderCategories() {
-            document.getElementById('categoriesList').innerHTML = categories.map(c => `<tr><td>${c.name}</td><td>${c.description||''}</td><td><button class="btn" onclick="editCategory('${c.id}')">編輯</button></td></tr>`).join('');
-        }
-
-        function showCategoryModal(id = null) {
-            document.getElementById('categoryModal').classList.add('show');
-            document.getElementById('deleteCatBtn').style.display = id ? 'block' : 'none';
-            if (id) {
-                const cat = categories.find(c => c.id === id);
-                document.getElementById('catId').value = cat.id;
-                document.getElementById('catName').value = cat.name;
-                document.getElementById('catDesc').value = cat.description || '';
-                document.getElementById('catSort').value = cat.sort;
-            } else {
-                document.getElementById('catId').value = '';
-                document.getElementById('catName').value = '';
-                document.getElementById('catDesc').value = '';
-                document.getElementById('catSort').value = '0';
-            }
-        }
-
-        async function saveCategory() {
-            const data = {
-                name: document.getElementById('catName').value,
-                description: document.getElementById('catDesc').value,
-                sort: parseInt(document.getElementById('catSort').value)
-            };
-            const id = document.getElementById('catId').value;
-            if (id) data.id = id;
-            await supabaseClient.from('categories').upsert(data);
-            closeModal('categoryModal');
-            loadCategories();
-        }
-
-        async function editCategory(id) { showCategoryModal(id); }
-
-        async function deleteCategory() {
-            if (!confirm('確定刪除？')) return;
-            await supabaseClient.from('categories').delete().eq('id', document.getElementById('catId').value);
-            closeModal('categoryModal');
-            loadCategories();
+            document.getElementById('statUsers').textContent = users || 0;
+            document.getElementById('statProducts').textContent = products || 0;
+            document.getElementById('statOrders').textContent = orders || 0;
         }
 
         async function loadProducts() {
             const { data } = await supabaseClient.from('products').select('*, categories(name)').order('sort');
             products = data || [];
-            renderProducts();
-        }
-
-        function renderProducts() {
             document.getElementById('productsList').innerHTML = products.map(p => `<tr><td>${p.name}</td><td>${p.categories?.name||'-'}</td><td>${p.price}</td><td>${p.stock}</td><td><button class="btn" onclick="editProduct('${p.id}')">編輯</button></td></tr>`).join('');
         }
 
-        function showProductModal(id = null) {
-            document.getElementById('productModal').classList.add('show');
-            document.getElementById('deleteProdBtn').style.display = id ? 'block' : 'none';
-            if (id) {
-                const prod = products.find(p => p.id === id);
-                document.getElementById('prodId').value = prod.id;
-                document.getElementById('prodName').value = prod.name;
-                document.getElementById('prodCat').value = prod.category_id || '';
-                document.getElementById('prodDesc').value = prod.description || '';
-                document.getElementById('prodPrice').value = prod.price;
-                document.getElementById('prodStock').value = prod.stock;
-                document.getElementById('prodImg').value = prod.image_url || '';
-                document.getElementById('prodAuto').value = prod.auto_deliver;
-                document.getElementById('prodVisible').value = prod.is_visible;
-                document.getElementById('prodSort').value = prod.sort;
-            } else {
-                document.getElementById('prodId').value = '';
-                document.getElementById('prodName').value = '';
-                document.getElementById('prodDesc').value = '';
-                document.getElementById('prodPrice').value = '0';
-                document.getElementById('prodStock').value = '-1';
-                document.getElementById('prodImg').value = '';
-                document.getElementById('prodAuto').value = '0';
-                document.getElementById('prodVisible').value = '1';
-                document.getElementById('prodSort').value = '0';
+        async function loadCategories() {
+            const { data } = await supabaseClient.from('categories').select('*').order('sort');
+            categories = data || [];
+            document.getElementById('categoriesList').innerHTML = categories.map(c => `<tr><td>${c.name}</td><td><button class="btn" onclick="editCategory('${c.id}')">編輯</button></td></tr>`).join('');
+        }
+
+        async function loadSettings() {
+            const { data } = await supabaseClient.from('settings').select('*');
+            if (data) {
+                data.forEach(s => {
+                    if (s.id === 'site_name') document.getElementById('siteName').value = s.value;
+                    if (s.id === 'xuanfeng_icon') document.getElementById('xfIcon').value = s.value;
+                    if (s.id === 'dianfeng_icon') document.getElementById('dfIcon').value = s.value;
+                });
             }
         }
 
-        async function saveProduct() {
-            const data = {
-                name: document.getElementById('prodName').value,
-                category_id: document.getElementById('prodCat').value || null,
-                description: document.getElementById('prodDesc').value,
-                price: parseInt(document.getElementById('prodPrice').value),
-                stock: parseInt(document.getElementById('prodStock').value),
-                image_url: document.getElementById('prodImg').value,
-                auto_deliver: parseInt(document.getElementById('prodAuto').value),
-                is_visible: parseInt(document.getElementById('prodVisible').value),
-                sort: parseInt(document.getElementById('prodSort').value)
-            };
-            const id = document.getElementById('prodId').value;
-            if (id) data.id = id;
-            await supabaseClient.from('products').upsert(data);
-            closeModal('productModal');
-            loadProducts();
-        }
-
-        async function editProduct(id) { showProductModal(id); }
-
-        async function deleteProduct() {
-            if (!confirm('確定刪除？')) return;
-            await supabaseClient.from('products').delete().eq('id', document.getElementById('prodId').value);
-            closeModal('productModal');
-            loadProducts();
-        }
-
-        async function loadOrders() {
-            const { data } = await supabaseClient.from('orders').select('*, users(email), products(name)').order('created_at', { ascending: false });
-            document.getElementById('ordersList').innerHTML = data?.map(o => `<tr><td>${o.products?.name||'-'}</td><td>${o.users?.email||'-'}</td><td><span class="badge badge-success">${o.status}</span></td></tr>`).join('') || '';
+        async function saveSettings() {
+            await supabaseClient.from('settings').upsert({ id: 'site_name', value: document.getElementById('siteName').value });
+            await supabaseClient.from('settings').upsert({ id: 'xuanfeng_icon', value: document.getElementById('xfIcon').value });
+            await supabaseClient.from('settings').upsert({ id: 'dianfeng_icon', value: document.getElementById('dfIcon').value });
+            alert('保存成功');
         }
 
         async function loadUsers() {
             const { data } = await supabaseClient.from('users').select('*').order('created_at', { ascending: false });
-            renderUsers(data || []);
+            document.getElementById('usersList').innerHTML = (data || []).map(u => `<tr><td>${u.username||'-'}</td><td>${u.email}</td><td>${u.xuanfeng_coin||0}</td><td>${u.dianfeng_coin||0}</td><td><button class="btn" onclick="editUser('${u.id}')">調整</button></td></tr>`).join('');
         }
 
-        function renderUsers(users) {
-            document.getElementById('usersList').innerHTML = users.map(u => `<tr><td>${u.username||'-'}</td><td>${u.email}</td><td>${u.xuanfeng_coin||0}</td><td>${u.dianfeng_coin||0}</td><td><button class="btn" onclick="editUserBalance('${u.id}')">調整</button></td></tr>`).join('');
+        function showProductModal(id = null) {
+            const name = prompt('商品名稱:');
+            const price = prompt('價格:');
+            if (!name || !price) return;
+            const data = { name, price: parseInt(price), is_visible: 1, sort: products.length };
+            if (id) data.id = id;
+            supabaseClient.from('products').upsert(data).then(() => { loadProducts(); loadStats(); });
         }
 
-        async function searchUsers() {
-            const q = document.getElementById('userSearch').value.toLowerCase();
-            const { data } = await supabaseClient.from('users').select('*');
-            const filtered = (data || []).filter(u => u.email.toLowerCase().includes(q) || (u.username || '').toLowerCase().includes(q));
-            renderUsers(filtered);
+        function editProduct(id) { showProductModal(id); }
+
+        function showCatModal(id = null) {
+            const name = prompt('分類名稱:');
+            if (!name) return;
+            const data = { name, sort: categories.length };
+            if (id) data.id = id;
+            supabaseClient.from('categories').upsert(data).then(() => loadCategories());
         }
 
-        async function editUserBalance(id) {
-            const { data } = await supabaseClient.from('users').select('*').eq('id', id).single();
-            const xf = prompt('玄封幣:', data.xuanfeng_coin || 0);
-            const df = prompt('巔峰幣:', data.dianfeng_coin || 0);
-            if (xf !== null) await supabaseClient.from('users').update({ xuanfeng_coin: parseInt(xf) || 0, dianfeng_coin: parseInt(df) || 0 }).eq('id', id);
-            loadUsers();
-            loadStats();
+        function editCategory(id) { showCatModal(id); }
+
+        function editUser(id) {
+            const xf = prompt('玄封幣:');
+            const df = prompt('巔峰幣:');
+            if (xf === null) return;
+            supabaseClient.from('users').update({ xuanfeng_coin: parseInt(xf)||0, dianfeng_coin: parseInt(df)||0 }).eq('id', id).then(() => loadUsers());
         }
 
-        async function searchUserForCharge() {
+        async function searchUser() {
             const q = document.getElementById('searchUser').value;
             if (q.length < 2) { document.getElementById('searchResult').innerHTML = ''; return; }
             const { data } = await supabaseClient.from('users').select('*').ilike('username', `%${q}%`);
-            const container = document.getElementById('searchResult');
-            if (!data || data.length === 0) { container.innerHTML = '<div>無結果</div>'; return; }
-            container.innerHTML = data.map(u => `<div style="padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
-                <div><div>${u.username||u.email}</div><div style="color:#888">玄封:${u.xuanfeng_coin||0} 巔峰:${u.dianfeng_coin||0}</div></div>
-                <div style="display:flex;gap:5px">
-                    <input type="number" id="xf_${u.id}" placeholder="玄封" style="width:60px">
-                    <input type="number" id="df_${u.id}" placeholder="巔峰" style="width:60px">
-                    <button class="btn btn-primary" onclick="chargeUser('${u.id}')">充值</button>
-                </div>
+            document.getElementById('searchResult').innerHTML = (data || []).map(u => `<div style="padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+                <div>${u.username||u.email} <small>(${u.xuanfeng_coin||0} 玄封, ${u.dianfeng_coin||0} 巔峰)</small></div>
+                <div><input type="number" id="c_${u.id}" style="width:60px"><button class="btn" onclick="charge('${u.id}')">充</button></div>
             </div>`).join('');
         }
 
-        async function chargeUser(userId) {
-            const xf = parseInt(document.getElementById(`xf_${userId}`).value) || 0;
-            const df = parseInt(document.getElementById(`df_${userId}`).value) || 0;
-            const { data } = await supabaseClient.from('users').select('*').eq('id', userId).single();
-            await supabaseClient.from('users').update({
-                xuanfeng_coin: (data.xuanfeng_coin || 0) + xf,
-                dianfeng_coin: (data.dianfeng_coin || 0) + df
-            }).eq('id', userId);
-            alert('充值成功');
-            loadUsers();
-            loadStats();
-        }
-
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            location.href = 'index.html';
+        function charge(id) {
+            const amount = parseInt(document.getElementById('c_' + id).value) || 0;
+            supabaseClient.from('users').select('*').eq('id', id).single().then(({ data }) => {
+                supabaseClient.from('users').update({ xuanfeng_coin: (data?.xuanfeng_coin || 0) + amount }).eq('id', id);
+                alert('充值成功');
+                loadUsers();
+            });
         }
 
         init();
