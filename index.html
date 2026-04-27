@@ -2,128 +2,84 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>玄封商店</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f5f5f5; color: #333; }
-        .header { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 20px; font-weight: bold; color: #3498db; }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .coin-box { display: flex; gap: 8px; }
-        .coin { display: flex; align-items: center; gap: 5px; background: #fff3cd; padding: 5px 12px; border-radius: 20px; font-size: 13px; }
-        .coin img { width: 20px; height: 20px; border-radius: 50%; }
-        .coin.df { background: #e8daef; }
-        .btn { background: #3498db; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        .btn:hover { background: #2980b9; }
-        .daily-btn { background: #f39c12; }
-        .banner { background: linear-gradient(135deg, #3498db, #2980b9); padding: 50px 20px; text-align: center; color: #fff; }
-        .banner h1 { font-size: 28px; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
-        .tab { background: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
-        .tab.active { background: #3498db; color: #fff; border-color: #3498db; }
-        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .product { background: #fff; border-radius: 8px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .product-img { width: 100%; height: 150px; background: #f9f9f9; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
-        .product-name { font-weight: bold; margin-bottom: 5px; }
-        .product-price { color: #3498db; font-size: 18px; font-weight: bold; }
+        body { font-family: Arial; background: #f5f5f5; margin: 0; }
+        .header { background: white; padding: 15px; display: flex; justify-content: space-between; }
+        .logo { color: #3498db; font-weight: bold; font-size: 20px; }
+        .coin { background: #fff3cd; padding: 8px 15px; border-radius: 20px; }
+        .banner { background: #3498db; color: white; padding: 40px; text-align: center; }
+        .container { max-width: 800px; margin: 20px auto; padding: 15px; }
+        .btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab { background: white; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .tab.active { background: #3498db; color: white; }
+        .product { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="logo">🏪 玄封商店</div>
-        <div class="user-info">
-            <div class="coin"><img src="玄封幣.png"> <span id="xf">0</span></div>
-            <div class="coin df"><img src="巔峰幣.png"> <span id="df">0</span></div>
-            <button class="btn daily-btn" onclick="claimDaily()">📩</button>
-            <button class="btn" onclick="showLogin()">登入</button>
-        </div>
+        <div class="coin">💰 <span id="xf">0</span> 玄封幣</div>
     </header>
-    <div class="banner">
-        <h1>玄封商店</h1>
-    </div>
+    <div class="banner"><h1>玄封商店</h1></div>
     <div class="container">
         <div class="tabs">
-            <div class="tab active" onclick="showTab('shop', this)">商店</div>
-            <div class="tab" onclick="showTab('exchange', this)">兌換</div>
-            <div class="tab" onclick="showTab('claim', this)">每日</div>
+            <div class="tab active" onclick="tab('shop')">商店</div>
+            <div class="tab" onclick="tab('exchange')">兌換</div>
+            <div class="tab" onclick="tab('claim')">每日</div>
         </div>
-        <div id="shopContent"><div class="products" id="products"></div></div>
-        <div id="exchangeContent" style="display:none">
-            <input type="number" id="exchangeAmount" value="100" style="width:100px;padding:8px">
-            <button class="btn" onclick="doExchange()">兌換</button>
+        <div id="shop"></div>
+        <div id="exchange" style="display:none">
+            <input id="ex" value="100" style="padding:10px"> <button class="btn" onclick="ex()">兌換</button>
         </div>
-        <div id="claimContent" style="display:none">
-            <button class="btn" onclick="claimDaily()">領取 50 代幣</button>
+        <div id="claim" style="display:none">
+            <button class="btn" style="font-size:18px" onclick="cl()">📩 領取50</button>
         </div>
     </div>
     <script>
         var db = window.supabase.createClient('https://chjuzpbocdkdiyuuziye.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNoanV6cGJvY2RraXl1eml5ZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUiLCJpYXQiOjE2NDgxODMyMDAsImV4cCI6MTk2Mzc1OTYwMH0.NItpZOQLPR4jshwOA_ZzV27mJI');
-
-        var coins = { xf: 0, df: 0 };
+        var c = localStorage.getItem('c') || 0;
+        document.getElementById('xf').innerText = c;
         
-        function init() {
-            var saved = localStorage.getItem('coins');
-            if (saved) { coins = JSON.parse(saved); }
-            document.getElementById('xf').innerText = coins.xf;
-            document.getElementById('df').innerText = coins.df;
-            loadProducts();
+        function tab(t) {
+            document.querySelectorAll('.tab').forEach(function(x) { x.classList.remove('active'); });
+            event.target.classList.add('active');
+            document.getElementById('shop').style.display = t === 'shop' ? 'block' : 'none';
+            document.getElementById('exchange').style.display = t === 'exchange' ? 'block' : 'none';
+            document.getElementById('claim').style.display = t === 'claim' ? 'block' : 'none';
+            if (t === 'shop') load();
         }
-
-        function save() {
-            localStorage.setItem('coins', JSON.stringify(coins));
-            document.getElementById('xf').innerText = coins.xf;
-            document.getElementById('df').innerText = coins.df;
+        
+        async function load() {
+            try {
+                var r = await db.from('products').select('name,price').eq('is_visible', 1);
+                var h = '';
+                (r.data || []).forEach(function(p) {
+                    h += '<div class="product"><b>' + p.name + '</b><span>' + p.price + '代幣</span></div>';
+                });
+                document.getElementById('shop').innerHTML = h || '暫無商品';
+            } catch(e) { document.getElementById('shop').innerHTML = '載入失敗'; }
         }
-
-        function showTab(tab, el) {
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-            el.classList.add('active');
-            document.getElementById('shopContent').style.display = tab === 'shop' ? 'block' : 'none';
-            document.getElementById('exchangeContent').style.display = tab === 'exchange' ? 'block' : 'none';
-            document.getElementById('claimContent').style.display = tab === 'claim' ? 'block' : 'none';
+        
+        function cl() {
+            c = parseInt(c) + 50;
+            localStorage.setItem('c', c);
+            document.getElementById('xf').innerText = c;
+            alert('+50代幣');
         }
-
-        function showLogin() {
-            alert('請前往後台登入');
-        }
-
-        function claimDaily() {
-            coins.xf += 50;
-            save();
-            alert('獲得 50 玄封幣');
-        }
-
-        function doExchange() {
-            var amount = parseInt(document.getElementById('exchangeAmount').value) || 0;
-            var cost = amount * 100;
-            if (coins.xf < cost) { alert('不足'); return; }
-            coins.xf -= cost;
-            coins.df += amount;
-            save();
+        
+        function ex() {
+            var a = parseInt(document.getElementById('ex').value) || 0;
+            if (c < a * 100) { alert('不足'); return; }
+            c -= a * 100;
+            localStorage.setItem('c', c);
+            document.getElementById('xf').innerText = c;
             alert('兌換成功');
         }
-
-        async function loadProducts() {
-            try {
-                var result = await db.from('products').select('*').eq('is_visible', 1).order('sort');
-                var html = '';
-                if (result.data && result.data.length > 0) {
-                    result.data.forEach(function(p) {
-                        html += '<div class="product"><div class="product-name">' + p.name + '</div><div class="product-price">' + p.price + ' 代幣</div></div>';
-                    });
-                } else {
-                    html = '<p>暫無商品</p>';
-                }
-                document.getElementById('products').innerHTML = html;
-            } catch(e) {
-                document.getElementById('products').innerHTML = '<p>載入失敗: ' + e.message + '</p>';
-            }
-        }
-
-        init();
+        
+        load();
     </script>
 </body>
 </html>
